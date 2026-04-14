@@ -2,9 +2,9 @@ import { PrismaClient, ExamCategory, WordType, UserTier } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// JLPT N5 seed — categories 1-6 · 42 words.
-// (学校, 先生, 友達, 天気, 食べる, 飲む, 読む, 書く are reserved for a
-// later batch to avoid duplicates with legacy seeds.)
+// JLPT N5 seed — complete · 50 words across 6 categories:
+// 挨拶/日常 (10), 食べ物 (8), 場所/交通 (8), 時間/天気 (8),
+// 家族/人 (8), 動詞 (8).
 
 interface SeedKanji {
   char: string;
@@ -232,7 +232,7 @@ const FOOD: SeedWord[] = [
   },
 ];
 
-// ---------- Category 3: 場所/交通 (7) ----------
+// ---------- Category 3: 場所/交通 (8) ----------
 const PLACES: SeedWord[] = [
   {
     lemma: "駅", reading: "えき", meaning: "(train) station",
@@ -326,9 +326,23 @@ const PLACES: SeedWord[] = [
     ],
     collocations: ["成田空港", "空港に着く"],
   },
+  {
+    lemma: "学校", reading: "がっこう", meaning: "school",
+    partOfSpeech: "noun", type: WordType.KANGO, category: "place",
+    kanji: [
+      { char: "学", reading: "ガク", meaning: "learn, study", onyomi: ["ガク"], kunyomi: ["まな(ぶ)"] },
+      { char: "校", reading: "コウ", meaning: "school building", onyomi: ["コウ"], kunyomi: [] },
+    ],
+    mnemonic: "GAK-KOU → learn (学) + building (校) = 'building for learning' → school.",
+    examples: [
+      { jp: "学校へ行きます。", reading: "がっこうへいきます。", en: "I go to school." },
+      { jp: "新しい学校は大きい。", reading: "あたらしいがっこうはおおきい。", en: "The new school is big." },
+    ],
+    collocations: ["小学校", "学校に行く"],
+  },
 ];
 
-// ---------- Category 4: 時間/天気 (7) ----------
+// ---------- Category 4: 時間/天気 (8) ----------
 const TIMES: SeedWord[] = [
   {
     lemma: "今日", reading: "きょう", meaning: "today",
@@ -416,9 +430,23 @@ const TIMES: SeedWord[] = [
     ],
     collocations: ["雨が降る", "大雨"],
   },
+  {
+    lemma: "天気", reading: "てんき", meaning: "weather",
+    partOfSpeech: "noun", type: WordType.KANGO, category: "time",
+    kanji: [
+      { char: "天", reading: "テン", meaning: "heaven, sky", onyomi: ["テン"], kunyomi: ["あま", "あめ"] },
+      { char: "気", reading: "キ", meaning: "spirit, air, mood", onyomi: ["キ", "ケ"], kunyomi: [] },
+    ],
+    mnemonic: "TEN-KI → sky (天) + mood (気) = 'the mood of the sky' → weather.",
+    examples: [
+      { jp: "今日は天気がいいです。", reading: "きょうはてんきがいいです。", en: "The weather is nice today." },
+      { jp: "天気予報を見ます。", reading: "てんきよほうをみます。", en: "I watch the weather forecast." },
+    ],
+    collocations: ["いい天気", "天気予報"],
+  },
 ];
 
-// ---------- Category 5: 家族/人 (6) ----------
+// ---------- Category 5: 家族/人 (8) ----------
 const FAMILY: SeedWord[] = [
   {
     lemma: "お母さん", reading: "おかあさん", meaning: "mother (polite)",
@@ -492,9 +520,37 @@ const FAMILY: SeedWord[] = [
     ],
     collocations: ["子供の時", "三人の子供"],
   },
+  {
+    lemma: "先生", reading: "せんせい", meaning: "teacher; doctor",
+    partOfSpeech: "noun", type: WordType.KANGO, category: "family",
+    kanji: [
+      { char: "先", reading: "セン", meaning: "ahead, previous", onyomi: ["セン"], kunyomi: ["さき"] },
+      { char: "生", reading: "セイ", meaning: "born, life", onyomi: ["セイ", "ショウ"], kunyomi: ["う(まれる)", "い(きる)"] },
+    ],
+    mnemonic: "SEN-SEI → ahead (先) + born (生) = 'born ahead of you' → teacher / master.",
+    examples: [
+      { jp: "田中先生は優しい。", reading: "たなかせんせいはやさしい。", en: "Tanaka-sensei is kind." },
+      { jp: "先生に質問します。", reading: "せんせいにしつもんします。", en: "I'll ask the teacher a question." },
+    ],
+    collocations: ["日本語の先生", "先生になる"],
+  },
+  {
+    lemma: "友達", reading: "ともだち", meaning: "friend",
+    partOfSpeech: "noun", type: WordType.KANGO, category: "family",
+    kanji: [
+      { char: "友", reading: "とも", meaning: "friend", onyomi: ["ユウ"], kunyomi: ["とも"] },
+      { char: "達", reading: "たち / ダツ", meaning: "reach; plural", onyomi: ["タツ"], kunyomi: [] },
+    ],
+    mnemonic: "TO-MO-DA-CHI → friend (友) + reach (達) = 'friends who reach alongside'.",
+    examples: [
+      { jp: "友達と遊ぶ。", reading: "ともだちとあそぶ。", en: "I play with a friend." },
+      { jp: "いい友達がいます。", reading: "いいともだちがいます。", en: "I have good friends." },
+    ],
+    collocations: ["いい友達", "古い友達"],
+  },
 ];
 
-// ---------- Category 6: 動詞 (4) ----------
+// ---------- Category 6: 動詞 (8) ----------
 const VERBS: SeedWord[] = [
   {
     lemma: "行く", reading: "いく", meaning: "to go",
@@ -540,6 +596,50 @@ const VERBS: SeedWord[] = [
     ],
     collocations: ["早く寝る", "よく寝る"],
   },
+  {
+    lemma: "食べる", reading: "たべる", meaning: "to eat",
+    partOfSpeech: "verb (ichidan)", type: WordType.WAGO, category: "verb",
+    kanji: [{ char: "食", reading: "た(べる)", meaning: "eat, food", onyomi: ["ショク"], kunyomi: ["た(べる)", "く(う)"] }],
+    mnemonic: "TA-BE-RU → 食 shows a lid over a table of food — lift the lid to eat.",
+    examples: [
+      { jp: "ごはんを食べる。", reading: "ごはんをたべる。", en: "I eat rice." },
+      { jp: "肉を食べます。", reading: "にくをたべます。", en: "I'll eat meat." },
+    ],
+    collocations: ["朝ごはんを食べる", "よく食べる"],
+  },
+  {
+    lemma: "飲む", reading: "のむ", meaning: "to drink",
+    partOfSpeech: "verb (godan)", type: WordType.WAGO, category: "verb",
+    kanji: [{ char: "飲", reading: "の(む)", meaning: "drink", onyomi: ["イン"], kunyomi: ["の(む)"] }],
+    mnemonic: "NO-MU → 飲 = 食 (food radical) + 欠 (yawn / open mouth) — opening the mouth to drink.",
+    examples: [
+      { jp: "水を飲む。", reading: "みずをのむ。", en: "I drink water." },
+      { jp: "お茶を飲みます。", reading: "おちゃをのみます。", en: "I'll drink tea." },
+    ],
+    collocations: ["水を飲む", "薬を飲む"],
+  },
+  {
+    lemma: "読む", reading: "よむ", meaning: "to read",
+    partOfSpeech: "verb (godan)", type: WordType.WAGO, category: "verb",
+    kanji: [{ char: "読", reading: "よ(む)", meaning: "read", onyomi: ["ドク", "トク"], kunyomi: ["よ(む)"] }],
+    mnemonic: "YO-MU → 読 = 言 (speech) + 売 (sell) — reading aloud as if selling the words.",
+    examples: [
+      { jp: "本を読む。", reading: "ほんをよむ。", en: "I read a book." },
+      { jp: "新聞を読みます。", reading: "しんぶんをよみます。", en: "I read the newspaper." },
+    ],
+    collocations: ["本を読む", "新聞を読む"],
+  },
+  {
+    lemma: "書く", reading: "かく", meaning: "to write",
+    partOfSpeech: "verb (godan)", type: WordType.WAGO, category: "verb",
+    kanji: [{ char: "書", reading: "か(く)", meaning: "write, book", onyomi: ["ショ"], kunyomi: ["か(く)"] }],
+    mnemonic: "KA-KU → 書 shows a brush (聿) over 日 (day) — writing a diary each day.",
+    examples: [
+      { jp: "手紙を書く。", reading: "てがみをかく。", en: "I write a letter." },
+      { jp: "名前を書きます。", reading: "なまえをかきます。", en: "I write my name." },
+    ],
+    collocations: ["名前を書く", "手紙を書く"],
+  },
 ];
 
 const ALL: SeedWord[] = [...GREETINGS, ...FOOD, ...PLACES, ...TIMES, ...FAMILY, ...VERBS];
@@ -582,7 +682,7 @@ async function main() {
       },
     });
   }
-  console.log(`Seeded ${ALL.length} JLPT N5 words (categories 1-6).`);
+  console.log(`Seeded ${ALL.length} JLPT N5 words (complete, all 6 categories).`);
 }
 
 main()
