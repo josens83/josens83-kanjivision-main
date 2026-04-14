@@ -1,0 +1,207 @@
+// KanjiVision AI — Prisma schema
+// Structure mirrors Vision Platform services (VocaVision / HangeulVision / KanjiVision).
+// Only ExamCategory differs: JLPT levels + THEME + GENERAL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ExamCategory {
+  JLPT_N5
+  JLPT_N4
+  JLPT_N3
+  JLPT_N2
+  JLPT_N1
+  THEME
+  GENERAL
+}
+
+enum WordType {
+  KANGO      // 漢語 (Sino-Japanese)
+  WAGO       // 和語 (native Japanese)
+  GAIRAIGO   // 外来語 (loanwords)
+}
+
+enum UserTier {
+  FREE
+  BASIC
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
+
+enum PaymentProcessor {
+  PADDLE
+  TOSS
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+// ---------- Users ----------
+
+model User {
+  id             String         @id @default(cuid())
+  email          String         @unique
+  passwordHash   String?
+  displayName    String?
+  locale         String         @default("en")
+  tier           UserTier       @default(FREE)
+  emailVerifiedAt DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  subscriptions  Subscription[]
+  payments       Payment[]
+  progress       Progress[]
+  sessions       StudySession[]
+  mnemonicImages MnemonicImage[]
+
+  @@index([email])
+}
+
+// ---------- Vocabulary content ----------
+
+model Word {
+  id             String         @id @default(cuid())
+  lemma          String         // 学校
+  reading        String         // がっこう
+  meaning        String         // school
+  partOfSpeech   String
+  examCategory   ExamCategory
+  type           WordType       @default(WAGO)
+  tierRequired   UserTier       @default(FREE)
+  mnemonic       String?
+  exampleJp      String?
+  exampleReading String?
+  exampleEn      String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  kanjiParts     KanjiPart[]
+  progress       Progress[]
+  mnemonicImages MnemonicImage[]
+
+  @@index([examCategory])
+  @@index([tierRequired])
+  @@unique([lemma, reading])
+}
+
+model KanjiPart {
+  id        String   @id @default(cuid())
+  wordId    String
+  position  Int
+  char      String   // e.g. "学"
+  reading   String   // e.g. "ガク" or "まなぶ"
+  meaning   String   // e.g. "learn"
+  onyomi    String[] @default([])
+  kunyomi   String[] @default([])
+  createdAt DateTime @default(now())
+
+  word      Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@index([wordId])
+  @@index([char])
+}
+
+// ---------- Study / SRS ----------
+
+model Progress {
+  id             String   @id @default(cuid())
+  userId         String
+  wordId         String
+  repetition     Int      @default(0)
+  interval       Int      @default(0)
+  easiness       Float    @default(2.5)
+  dueAt          DateTime @default(now())
+  lastReviewedAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word           Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, wordId])
+  @@index([userId, dueAt])
+}
+
+model StudySession {
+  id          String       @id @default(cuid())
+  userId      String
+  examCategory ExamCategory
+  startedAt   DateTime     @default(now())
+  endedAt     DateTime?
+  cardsSeen   Int          @default(0)
+  cardsCorrect Int         @default(0)
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startedAt])
+}
+
+// ---------- AI-generated imagery ----------
+
+model MnemonicImage {
+  id         String   @id @default(cuid())
+  wordId     String
+  userId     String?
+  prompt     String
+  url        String
+  provider   String   @default("stability")
+  createdAt  DateTime @default(now())
+
+  word       Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([wordId])
+}
+
+// ---------- Billing ----------
+
+model Subscription {
+  id              String             @id @default(cuid())
+  userId          String
+  processor       PaymentProcessor
+  externalId      String             @unique
+  plan            String
+  status          SubscriptionStatus @default(ACTIVE)
+  currentPeriodEnd DateTime?
+  canceledAt      DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Payment {
+  id          String           @id @default(cuid())
+  userId      String
+  processor   PaymentProcessor
+  externalId  String           @unique
+  amountCents Int
+  currency    String           @default("USD")
+  status      PaymentStatus    @default(PENDING)
+  rawEvent    Json?
+  createdAt   DateTime         @default(now())
+
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
