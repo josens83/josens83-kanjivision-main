@@ -1,7 +1,8 @@
 // KanjiVision AI — Seed vocabulary (JLPT N5)
-// Expansion in progress: categories 1-2 first (greetings + food = 18 words).
-// Categories 3-6 (place/transport, time/weather, family/people, verbs) follow
-// in a subsequent commit.
+// 42 words across 6 categories (greetings, food, place/transport,
+// time/weather, family/people, core verbs).
+// 学校, 先生, 友達, 天気, 食べる, 飲む, 読む, 書く are reserved for a later
+// batch to avoid duplicates with legacy seeds.
 
 export type ExamCategory = "JLPT_N5" | "JLPT_N4" | "JLPT_N3" | "JLPT_N2" | "JLPT_N1";
 
@@ -399,7 +400,381 @@ const FOOD: Word[] = [
   },
 ];
 
-export const WORDS: Word[] = [...GREETINGS, ...FOOD];
+// ---------------------------------------------------------------------------
+// Category 3 — 場所 / 交通 (place & transport) · 7 words
+// (学校 is reserved for a later seed batch to avoid duplicates.)
+// ---------------------------------------------------------------------------
+
+const PLACES: Word[] = [
+  {
+    id: "n5-p-001",
+    lemma: "駅", reading: "えき", meaning: "(train) station",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "和語", category: "place",
+    kanji: [{ char: "駅", reading: "エキ", meaning: "station", onyomi: ["エキ"] }],
+    mnemonic: "E-KI → \"eh-key\" — the key to boarding the train waits at the station.",
+    examples: [
+      { jp: "駅で会いましょう。", reading: "えきであいましょう。", en: "Let's meet at the station." },
+      { jp: "駅まで歩きます。", reading: "えきまであるきます。", en: "I'll walk to the station." },
+    ],
+    collocations: ["東京駅", "駅の前"],
+    tier: "free",
+  },
+  {
+    id: "n5-p-002",
+    lemma: "病院", reading: "びょういん", meaning: "hospital",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "漢語", category: "place",
+    kanji: [
+      { char: "病", reading: "ビョウ", meaning: "illness", onyomi: ["ビョウ", "ヘイ"], kunyomi: ["や(む)"] },
+      { char: "院", reading: "イン", meaning: "institution, hall", onyomi: ["イン"] },
+    ],
+    mnemonic: "BYOU-IN → \"B-you-in\" — \"bed you in\" at the illness-institution.",
+    examples: [
+      { jp: "病院へ行きます。", reading: "びょういんへいきます。", en: "I'm going to the hospital." },
+      { jp: "兄は病院で働いています。", reading: "あにはびょういんではたらいています。", en: "My older brother works at a hospital." },
+    ],
+    collocations: ["大きい病院", "病院で働く"],
+    tier: "free",
+  },
+  {
+    id: "n5-p-003",
+    lemma: "銀行", reading: "ぎんこう", meaning: "bank",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "漢語", category: "place",
+    kanji: [
+      { char: "銀", reading: "ギン", meaning: "silver", onyomi: ["ギン"] },
+      { char: "行", reading: "コウ", meaning: "go; trade/shop", onyomi: ["コウ", "ギョウ"], kunyomi: ["い(く)"] },
+    ],
+    mnemonic: "GIN-KOU → silver (銀) + trade (行) = the silver-trade place → bank.",
+    examples: [
+      { jp: "銀行にお金を預けます。", reading: "ぎんこうにおかねをあずけます。", en: "I'll deposit money at the bank." },
+      { jp: "銀行は九時に開きます。", reading: "ぎんこうはくじにひらきます。", en: "The bank opens at 9." },
+    ],
+    collocations: ["銀行員", "銀行口座"],
+    tier: "free",
+  },
+  {
+    id: "n5-p-004",
+    lemma: "電車", reading: "でんしゃ", meaning: "train",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "漢語", category: "place",
+    kanji: [
+      { char: "電", reading: "デン", meaning: "electricity", onyomi: ["デン"] },
+      { char: "車", reading: "シャ", meaning: "car, vehicle", onyomi: ["シャ"], kunyomi: ["くるま"] },
+    ],
+    mnemonic: "DEN-SHA → electricity (電) + car (車) = electric car → train.",
+    examples: [
+      { jp: "電車で行きます。", reading: "でんしゃでいきます。", en: "I'll go by train." },
+      { jp: "電車が遅れました。", reading: "でんしゃがおくれました。", en: "The train was delayed." },
+    ],
+    collocations: ["電車に乗る", "次の電車"],
+    tier: "free",
+  },
+  {
+    id: "n5-p-005",
+    lemma: "バス", reading: "バス", meaning: "bus",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "外来語", category: "place", kanji: [],
+    mnemonic: "BA-SU → English \"bus\" borrowed into Japanese with a short, crisp sound.",
+    examples: [
+      { jp: "バスに乗ります。", reading: "バスにのります。", en: "I'll take the bus." },
+      { jp: "バス停はどこですか。", reading: "バスていはどこですか。", en: "Where is the bus stop?" },
+    ],
+    collocations: ["バスに乗る", "バス停"],
+    tier: "free",
+  },
+  {
+    id: "n5-p-006",
+    lemma: "図書館", reading: "としょかん", meaning: "library",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "漢語", category: "place",
+    kanji: [
+      { char: "図", reading: "ト / ズ", meaning: "diagram, plan", onyomi: ["ト", "ズ"] },
+      { char: "書", reading: "ショ", meaning: "write, book", onyomi: ["ショ"], kunyomi: ["か(く)"] },
+      { char: "館", reading: "カン", meaning: "hall, building", onyomi: ["カン"] },
+    ],
+    mnemonic: "TO-SHO-KAN → diagrams (図) + books (書) + hall (館) = the hall of books.",
+    examples: [
+      { jp: "図書館で勉強します。", reading: "としょかんでべんきょうします。", en: "I study at the library." },
+      { jp: "図書館は静かです。", reading: "としょかんはしずかです。", en: "The library is quiet." },
+    ],
+    collocations: ["図書館で借りる", "大学の図書館"],
+    tier: "free",
+  },
+  {
+    id: "n5-p-007",
+    lemma: "空港", reading: "くうこう", meaning: "airport",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "漢語", category: "place",
+    kanji: [
+      { char: "空", reading: "クウ", meaning: "sky, empty", onyomi: ["クウ"], kunyomi: ["そら", "から"] },
+      { char: "港", reading: "コウ", meaning: "port, harbor", onyomi: ["コウ"], kunyomi: ["みなと"] },
+    ],
+    mnemonic: "KUU-KOU → sky (空) + port (港) = sky-port → airport.",
+    examples: [
+      { jp: "空港までタクシーで行きます。", reading: "くうこうまでタクシーでいきます。", en: "I'll take a taxi to the airport." },
+      { jp: "空港でお土産を買います。", reading: "くうこうでおみやげをかいます。", en: "I'll buy souvenirs at the airport." },
+    ],
+    collocations: ["成田空港", "空港に着く"],
+    tier: "free",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Category 4 — 時間 / 天気 (time & weather) · 7 words
+// (天気 is reserved for a later seed batch.)
+// ---------------------------------------------------------------------------
+
+const TIMES: Word[] = [
+  {
+    id: "n5-t-001",
+    lemma: "今日", reading: "きょう", meaning: "today",
+    partOfSpeech: "noun / adverb", examCategory: "JLPT_N5", type: "漢語", category: "time",
+    kanji: [
+      { char: "今", reading: "コン / いま", meaning: "now", onyomi: ["コン", "キン"], kunyomi: ["いま"] },
+      { char: "日", reading: "ニチ / ひ", meaning: "day, sun", onyomi: ["ニチ", "ジツ"], kunyomi: ["ひ", "か"] },
+    ],
+    mnemonic: "KYOU → now (今) + day (日) = this day = today.",
+    examples: [
+      { jp: "今日は忙しいです。", reading: "きょうはいそがしいです。", en: "I'm busy today." },
+      { jp: "今日の天気はいいです。", reading: "きょうのてんきはいいです。", en: "Today's weather is nice." },
+    ],
+    collocations: ["今日の夕方", "今日の午後"],
+    tier: "free",
+  },
+  {
+    id: "n5-t-002",
+    lemma: "明日", reading: "あした", meaning: "tomorrow",
+    partOfSpeech: "noun / adverb", examCategory: "JLPT_N5", type: "漢語", category: "time",
+    kanji: [
+      { char: "明", reading: "メイ / あ", meaning: "bright", onyomi: ["メイ", "ミョウ"], kunyomi: ["あか(るい)", "あ(ける)"] },
+      { char: "日", reading: "ひ", meaning: "day, sun", onyomi: ["ニチ"], kunyomi: ["ひ"] },
+    ],
+    mnemonic: "A-SHI-TA → the bright (明) day (日) that comes after tonight's sleep.",
+    examples: [
+      { jp: "明日会いましょう。", reading: "あしたあいましょう。", en: "Let's meet tomorrow." },
+      { jp: "明日も仕事です。", reading: "あしたもしごとです。", en: "I have work tomorrow too." },
+    ],
+    collocations: ["明日の朝", "明日の会議"],
+    tier: "free",
+  },
+  {
+    id: "n5-t-003",
+    lemma: "昨日", reading: "きのう", meaning: "yesterday",
+    partOfSpeech: "noun / adverb", examCategory: "JLPT_N5", type: "漢語", category: "time",
+    kanji: [
+      { char: "昨", reading: "サク", meaning: "previous, yesterday", onyomi: ["サク"] },
+      { char: "日", reading: "ひ", meaning: "day, sun", onyomi: ["ニチ"], kunyomi: ["ひ"] },
+    ],
+    mnemonic: "KI-NO-U → the previous (昨) day (日) — yester-day.",
+    examples: [
+      { jp: "昨日は雨でした。", reading: "きのうはあめでした。", en: "Yesterday it rained." },
+      { jp: "昨日映画を見ました。", reading: "きのうえいがをみました。", en: "I watched a movie yesterday." },
+    ],
+    collocations: ["昨日の夜", "昨日の新聞"],
+    tier: "free",
+  },
+  {
+    id: "n5-t-004",
+    lemma: "春", reading: "はる", meaning: "spring (season)",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "和語", category: "time",
+    kanji: [{ char: "春", reading: "はる", meaning: "spring", onyomi: ["シュン"], kunyomi: ["はる"] }],
+    mnemonic: "HA-RU → \"ha-roo\" — 春 contains 日 (sun) underneath — the sun returns in spring.",
+    examples: [
+      { jp: "春が好きです。", reading: "はるがすきです。", en: "I like spring." },
+      { jp: "春になりました。", reading: "はるになりました。", en: "Spring has arrived." },
+    ],
+    collocations: ["春休み", "春の花"],
+    tier: "free",
+  },
+  {
+    id: "n5-t-005",
+    lemma: "暑い", reading: "あつい", meaning: "hot (weather)",
+    partOfSpeech: "i-adjective", examCategory: "JLPT_N5", type: "和語", category: "time",
+    kanji: [{ char: "暑", reading: "あつ(い)", meaning: "hot", onyomi: ["ショ"], kunyomi: ["あつ(い)"] }],
+    mnemonic: "A-TSU-I → \"ah! too-ee\" — gasp sound when stepping into the heat.",
+    examples: [
+      { jp: "今日は暑いです。", reading: "きょうはあついです。", en: "It's hot today." },
+      { jp: "夏はとても暑い。", reading: "なつはとてもあつい。", en: "Summer is very hot." },
+    ],
+    collocations: ["暑い夏", "とても暑い"],
+    tier: "free",
+  },
+  {
+    id: "n5-t-006",
+    lemma: "寒い", reading: "さむい", meaning: "cold (weather)",
+    partOfSpeech: "i-adjective", examCategory: "JLPT_N5", type: "和語", category: "time",
+    kanji: [{ char: "寒", reading: "さむ(い)", meaning: "cold", onyomi: ["カン"], kunyomi: ["さむ(い)"] }],
+    mnemonic: "SA-MU-I → \"sa-moo-ee\" — teeth chattering sound when you are cold.",
+    examples: [
+      { jp: "冬は寒いです。", reading: "ふゆはさむいです。", en: "Winter is cold." },
+      { jp: "今朝はとても寒い。", reading: "けさはとてもさむい。", en: "This morning is very cold." },
+    ],
+    collocations: ["寒い冬", "寒い朝"],
+    tier: "free",
+  },
+  {
+    id: "n5-t-007",
+    lemma: "雨", reading: "あめ", meaning: "rain",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "和語", category: "time",
+    kanji: [{ char: "雨", reading: "あめ", meaning: "rain", onyomi: ["ウ"], kunyomi: ["あめ", "あま"] }],
+    mnemonic: "A-ME → 雨 is literally a cloud with four raindrops falling inside.",
+    examples: [
+      { jp: "雨が降っています。", reading: "あめがふっています。", en: "It is raining." },
+      { jp: "明日は雨でしょう。", reading: "あしたはあめでしょう。", en: "It will probably rain tomorrow." },
+    ],
+    collocations: ["雨が降る", "大雨"],
+    tier: "free",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Category 5 — 家族 / 人 (family & people) · 6 words
+// (先生 and 友達 are reserved for a later seed batch.)
+// ---------------------------------------------------------------------------
+
+const FAMILY: Word[] = [
+  {
+    id: "n5-fa-001",
+    lemma: "お母さん", reading: "おかあさん", meaning: "mother (polite)",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "漢語", category: "family",
+    kanji: [{ char: "母", reading: "かあ / ボ", meaning: "mother", onyomi: ["ボ"], kunyomi: ["はは", "かあ"] }],
+    mnemonic: "O-KAA-SAN → 母 has two dots in the middle — a mother nursing her child.",
+    examples: [
+      { jp: "お母さんは台所にいます。", reading: "おかあさんはだいどころにいます。", en: "Mom is in the kitchen." },
+      { jp: "お母さんの料理はおいしい。", reading: "おかあさんのりょうりはおいしい。", en: "Mom's cooking is delicious." },
+    ],
+    collocations: ["お母さんの料理", "優しいお母さん"],
+    tier: "free",
+  },
+  {
+    id: "n5-fa-002",
+    lemma: "お父さん", reading: "おとうさん", meaning: "father (polite)",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "漢語", category: "family",
+    kanji: [{ char: "父", reading: "とう / フ", meaning: "father", onyomi: ["フ"], kunyomi: ["ちち", "とう"] }],
+    mnemonic: "O-TOU-SAN → 父 shows crossed arms — dad welcoming you home.",
+    examples: [
+      { jp: "お父さんは会社員です。", reading: "おとうさんはかいしゃいんです。", en: "Dad is an office worker." },
+      { jp: "お父さんと公園へ行きます。", reading: "おとうさんとこうえんへいきます。", en: "I'll go to the park with Dad." },
+    ],
+    collocations: ["お父さんの車", "優しいお父さん"],
+    tier: "free",
+  },
+  {
+    id: "n5-fa-003",
+    lemma: "学生", reading: "がくせい", meaning: "student",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "漢語", category: "family",
+    kanji: [
+      { char: "学", reading: "ガク", meaning: "learn, study", onyomi: ["ガク"], kunyomi: ["まな(ぶ)"] },
+      { char: "生", reading: "セイ", meaning: "born, life", onyomi: ["セイ", "ショウ"], kunyomi: ["う(まれる)", "い(きる)"] },
+    ],
+    mnemonic: "GAKU-SEI → learn (学) + life (生) = a life of learning → student.",
+    examples: [
+      { jp: "私は大学の学生です。", reading: "わたしはだいがくのがくせいです。", en: "I am a university student." },
+      { jp: "あの人は学生ですか。", reading: "あのひとはがくせいですか。", en: "Is that person a student?" },
+    ],
+    collocations: ["大学生", "高校生"],
+    tier: "free",
+  },
+  {
+    id: "n5-fa-004",
+    lemma: "兄", reading: "あに", meaning: "older brother (humble)",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "和語", category: "family",
+    kanji: [{ char: "兄", reading: "あに / ケイ", meaning: "older brother", onyomi: ["ケイ"], kunyomi: ["あに"] }],
+    mnemonic: "A-NI → 兄 shows a mouth (口) over legs — the older one who speaks up first.",
+    examples: [
+      { jp: "兄は医者です。", reading: "あにはいしゃです。", en: "My older brother is a doctor." },
+      { jp: "兄が二人います。", reading: "あにがふたりいます。", en: "I have two older brothers." },
+    ],
+    collocations: ["お兄さん", "兄弟"],
+    tier: "free",
+  },
+  {
+    id: "n5-fa-005",
+    lemma: "姉", reading: "あね", meaning: "older sister (humble)",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "和語", category: "family",
+    kanji: [{ char: "姉", reading: "あね / シ", meaning: "older sister", onyomi: ["シ"], kunyomi: ["あね"] }],
+    mnemonic: "A-NE → 姉 has 女 (woman) on the left — the elder woman of the family.",
+    examples: [
+      { jp: "姉は東京に住んでいます。", reading: "あねはとうきょうにすんでいます。", en: "My older sister lives in Tokyo." },
+      { jp: "姉のように優しい。", reading: "あねのようにやさしい。", en: "Kind like an older sister." },
+    ],
+    collocations: ["お姉さん", "姉妹"],
+    tier: "free",
+  },
+  {
+    id: "n5-fa-006",
+    lemma: "子供", reading: "こども", meaning: "child, children",
+    partOfSpeech: "noun", examCategory: "JLPT_N5", type: "漢語", category: "family",
+    kanji: [
+      { char: "子", reading: "コ / シ", meaning: "child", onyomi: ["シ", "ス"], kunyomi: ["こ"] },
+      { char: "供", reading: "ども / キョウ", meaning: "accompany; plural", onyomi: ["キョウ", "ク"], kunyomi: ["とも", "そな(える)"] },
+    ],
+    mnemonic: "KO-DO-MO → child (子) + companion (供) = small companions → children.",
+    examples: [
+      { jp: "子供たちが遊んでいます。", reading: "こどもたちがあそんでいます。", en: "The children are playing." },
+      { jp: "子供のとき東京にいました。", reading: "こどものときとうきょうにいました。", en: "When I was a child, I lived in Tokyo." },
+    ],
+    collocations: ["子供の時", "三人の子供"],
+    tier: "free",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Category 6 — 動詞 (core verbs) · 4 words
+// (食べる / 飲む / 書く / 読む are reserved for a later seed batch.)
+// ---------------------------------------------------------------------------
+
+const VERBS: Word[] = [
+  {
+    id: "n5-v-001",
+    lemma: "行く", reading: "いく", meaning: "to go",
+    partOfSpeech: "verb (godan)", examCategory: "JLPT_N5", type: "和語", category: "verb",
+    kanji: [{ char: "行", reading: "い(く) / コウ", meaning: "go", onyomi: ["コウ", "ギョウ"], kunyomi: ["い(く)", "おこな(う)"] }],
+    mnemonic: "I-KU → \"ee-koo\" — 行 shows a person striding forward on two legs.",
+    examples: [
+      { jp: "学校へ行きます。", reading: "がっこうへいきます。", en: "I go to school." },
+      { jp: "明日東京へ行く。", reading: "あしたとうきょうへいく。", en: "I'll go to Tokyo tomorrow." },
+    ],
+    collocations: ["学校へ行く", "旅行に行く"],
+    tier: "free",
+  },
+  {
+    id: "n5-v-002",
+    lemma: "来る", reading: "くる", meaning: "to come",
+    partOfSpeech: "verb (irregular)", examCategory: "JLPT_N5", type: "和語", category: "verb",
+    kanji: [{ char: "来", reading: "く(る) / ライ", meaning: "come", onyomi: ["ライ"], kunyomi: ["く(る)", "き(たる)"] }],
+    mnemonic: "KU-RU → 来 shows a person approaching — someone is coming toward you.",
+    examples: [
+      { jp: "友達が来ます。", reading: "ともだちがきます。", en: "My friend is coming." },
+      { jp: "電車が来ました。", reading: "でんしゃがきました。", en: "The train has arrived." },
+    ],
+    collocations: ["電車が来る", "家に来る"],
+    tier: "free",
+  },
+  {
+    id: "n5-v-003",
+    lemma: "見る", reading: "みる", meaning: "to see, to watch",
+    partOfSpeech: "verb (ichidan)", examCategory: "JLPT_N5", type: "和語", category: "verb",
+    kanji: [{ char: "見", reading: "み(る) / ケン", meaning: "see", onyomi: ["ケン"], kunyomi: ["み(る)"] }],
+    mnemonic: "MI-RU → 見 is an eye (目) on legs — the eye walks around and sees.",
+    examples: [
+      { jp: "映画を見ます。", reading: "えいがをみます。", en: "I watch a movie." },
+      { jp: "空を見てください。", reading: "そらをみてください。", en: "Please look at the sky." },
+    ],
+    collocations: ["テレビを見る", "映画を見る"],
+    tier: "free",
+  },
+  {
+    id: "n5-v-004",
+    lemma: "寝る", reading: "ねる", meaning: "to sleep; to go to bed",
+    partOfSpeech: "verb (ichidan)", examCategory: "JLPT_N5", type: "和語", category: "verb",
+    kanji: [{ char: "寝", reading: "ね(る) / シン", meaning: "sleep, lie down", onyomi: ["シン"], kunyomi: ["ね(る)"] }],
+    mnemonic: "NE-RU → 寝 has 宀 (roof) over a person — lying under a roof to sleep.",
+    examples: [
+      { jp: "十時に寝ます。", reading: "じゅうじにねます。", en: "I go to bed at 10." },
+      { jp: "昨日早く寝ました。", reading: "きのうはやくねました。", en: "I went to bed early yesterday." },
+    ],
+    collocations: ["早く寝る", "よく寝る"],
+    tier: "free",
+  },
+];
+
+export const WORDS: Word[] = [...GREETINGS, ...FOOD, ...PLACES, ...TIMES, ...FAMILY, ...VERBS];
 
 export const EXAM_LEVELS: { id: ExamCategory; label: string; cefr: string; words: number; kanji: number; tier: "free" | "basic" | "premium" }[] = [
   { id: "JLPT_N5", label: "N5 (Beginner)", cefr: "A1", words: 800, kanji: 100, tier: "free" },
