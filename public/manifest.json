@@ -1,0 +1,20 @@
+{
+  "name": "KanjiVision AI",
+  "short_name": "KanjiVision",
+  "description": "Japanese, Visualized. JLPT N5~N1 vocabulary learning with AI-generated mnemonics.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1018",
+  "theme_color": "#ef4361",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "en"
+}

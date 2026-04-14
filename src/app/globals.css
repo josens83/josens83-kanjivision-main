@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply bg-ink-900 text-ink-50 antialiased;
+    font-feature-settings: "palt";
+  }
+  ::selection {
+    @apply bg-sakura-500 text-white;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-sakura-500 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:bg-sakura-400 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-full border border-ink-400/40 px-5 py-2.5 text-sm font-semibold text-ink-50 transition hover:bg-ink-800;
+  }
+  .card {
+    @apply rounded-2xl border border-ink-400/10 bg-ink-800/60 p-6 shadow-card backdrop-blur;
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full border border-ink-400/30 bg-ink-800 px-3 py-1 text-xs font-medium text-ink-100;
+  }
+}
+
+/* Furigana-style ruby styling */
+ruby rt {
+  @apply text-[0.55em] font-normal text-sakura-200;
+  letter-spacing: 0.05em;
+}
