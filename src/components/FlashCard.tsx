@@ -80,13 +80,32 @@ export function FlashCard({ word, onGrade }: Props) {
             </section>
 
             <section className="text-sm">
-              <div className="text-ink-400 text-xs mb-1">Example</div>
-              <ruby>
-                {word.example.jp}
-                <rt>{word.example.reading}</rt>
-              </ruby>
-              <div className="text-ink-400 italic mt-1">{word.example.en}</div>
+              <div className="text-ink-400 text-xs mb-1">Examples</div>
+              <ul className="flex flex-col gap-2">
+                {word.examples.map((ex, i) => (
+                  <li key={i} className="rounded-lg border border-ink-400/15 bg-ink-900/40 p-2">
+                    <ruby>
+                      {ex.jp}
+                      <rt>{ex.reading}</rt>
+                    </ruby>
+                    <div className="mt-1 italic text-ink-400">{ex.en}</div>
+                  </li>
+                ))}
+              </ul>
             </section>
+
+            {word.collocations.length > 0 && (
+              <section className="text-sm">
+                <div className="text-ink-400 text-xs mb-1">Collocations</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {word.collocations.map((c) => (
+                    <span key={c} className="chip">
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         )}
       </button>

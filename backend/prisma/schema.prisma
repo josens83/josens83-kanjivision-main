@@ -85,11 +85,11 @@ model Word {
   partOfSpeech   String
   examCategory   ExamCategory
   type           WordType       @default(WAGO)
+  category       String?        // "greeting" | "food" | "place" | "time" | "family" | "verb"
   tierRequired   UserTier       @default(FREE)
   mnemonic       String?
-  exampleJp      String?
-  exampleReading String?
-  exampleEn      String?
+  examples       Json?          // [{jp,reading,en}, ...]
+  collocations   String[]       @default([])
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
@@ -99,6 +99,7 @@ model Word {
 
   @@index([examCategory])
   @@index([tierRequired])
+  @@index([category])
   @@unique([lemma, reading])
 }
 
