@@ -7,8 +7,8 @@
 //
 // Keeping the seed inlined (not imported from ../../src/data/words) so it
 // works inside the Docker runtime image where only `backend/` is copied.
-// 30 words now (10 greetings + 20 verbs/adjectives/family/place/time);
-// later batches will extend back to 50.
+// 50 words across 6 categories: 挨拶/日常 (10), 食べ物 (7), 場所/交通 (8),
+// 時間/天気 (7), 家族/人 (8), 動詞 + 形容詞 (10).
 
 import {
   PrismaClient,
@@ -442,6 +442,273 @@ const SEED: SeedWord[] = [
     kanji: [
       { char: "昨", reading: "サク", meaning: "previous", onyomi: ["サク"], kunyomi: [] },
       { char: "日", reading: "ひ", meaning: "day, sun", onyomi: ["ニチ"], kunyomi: ["ひ"] },
+    ],
+  },
+
+  // --- Weather (4) ---
+  {
+    lemma: "春", reading: "はる", meaning: "spring (season)",
+    partOfSpeech: "noun", type: WordType.WAGO, category: "time",
+    mnemonic: "HA-RU → 春 has 日 (sun) underneath; the sun returns in spring.",
+    examples: [
+      { jp: "春が好きです。", reading: "はるがすきです。", en: "I like spring." },
+      { jp: "春になりました。", reading: "はるになりました。", en: "Spring has arrived." },
+    ],
+    collocations: ["春休み", "春の花"],
+    kanji: [
+      { char: "春", reading: "はる", meaning: "spring", onyomi: ["シュン"], kunyomi: ["はる"] },
+    ],
+  },
+  {
+    lemma: "暑い", reading: "あつい", meaning: "hot (weather)",
+    partOfSpeech: "i-adjective", type: WordType.WAGO, category: "time",
+    mnemonic: "A-TSU-I → \"ah! too-ee\" — gasp sound when stepping into the heat.",
+    examples: [
+      { jp: "今日は暑いです。", reading: "きょうはあついです。", en: "It's hot today." },
+      { jp: "夏はとても暑い。", reading: "なつはとてもあつい。", en: "Summer is very hot." },
+    ],
+    collocations: ["暑い夏", "とても暑い"],
+    kanji: [
+      { char: "暑", reading: "あつ(い)", meaning: "hot", onyomi: ["ショ"], kunyomi: ["あつ(い)"] },
+    ],
+  },
+  {
+    lemma: "寒い", reading: "さむい", meaning: "cold (weather)",
+    partOfSpeech: "i-adjective", type: WordType.WAGO, category: "time",
+    mnemonic: "SA-MU-I → teeth chattering sound when you are cold.",
+    examples: [
+      { jp: "冬は寒いです。", reading: "ふゆはさむいです。", en: "Winter is cold." },
+      { jp: "今朝はとても寒い。", reading: "けさはとてもさむい。", en: "This morning is very cold." },
+    ],
+    collocations: ["寒い冬", "寒い朝"],
+    kanji: [
+      { char: "寒", reading: "さむ(い)", meaning: "cold", onyomi: ["カン"], kunyomi: ["さむ(い)"] },
+    ],
+  },
+  {
+    lemma: "雨", reading: "あめ", meaning: "rain",
+    partOfSpeech: "noun", type: WordType.WAGO, category: "time",
+    mnemonic: "A-ME → 雨 is literally a cloud with four raindrops falling inside.",
+    examples: [
+      { jp: "雨が降っています。", reading: "あめがふっています。", en: "It is raining." },
+      { jp: "明日は雨でしょう。", reading: "あしたはあめでしょう。", en: "It will probably rain tomorrow." },
+    ],
+    collocations: ["雨が降る", "大雨"],
+    kanji: [
+      { char: "雨", reading: "あめ", meaning: "rain", onyomi: ["ウ"], kunyomi: ["あめ", "あま"] },
+    ],
+  },
+
+  // --- Family / people (6) ---
+  {
+    lemma: "お母さん", reading: "おかあさん", meaning: "mother (polite)",
+    partOfSpeech: "noun", type: WordType.KANGO, category: "family",
+    mnemonic: "O-KAA-SAN → 母 has two dots — a mother nursing her child.",
+    examples: [
+      { jp: "お母さんは台所にいます。", reading: "おかあさんはだいどころにいます。", en: "Mom is in the kitchen." },
+      { jp: "お母さんの料理はおいしい。", reading: "おかあさんのりょうりはおいしい。", en: "Mom's cooking is delicious." },
+    ],
+    collocations: ["お母さんの料理", "優しいお母さん"],
+    kanji: [
+      { char: "母", reading: "かあ / ボ", meaning: "mother", onyomi: ["ボ"], kunyomi: ["はは", "かあ"] },
+    ],
+  },
+  {
+    lemma: "お父さん", reading: "おとうさん", meaning: "father (polite)",
+    partOfSpeech: "noun", type: WordType.KANGO, category: "family",
+    mnemonic: "O-TOU-SAN → 父 shows crossed arms — dad welcoming you home.",
+    examples: [
+      { jp: "お父さんは会社員です。", reading: "おとうさんはかいしゃいんです。", en: "Dad is an office worker." },
+      { jp: "お父さんと公園へ行きます。", reading: "おとうさんとこうえんへいきます。", en: "I'll go to the park with Dad." },
+    ],
+    collocations: ["お父さんの車", "優しいお父さん"],
+    kanji: [
+      { char: "父", reading: "とう / フ", meaning: "father", onyomi: ["フ"], kunyomi: ["ちち", "とう"] },
+    ],
+  },
+  {
+    lemma: "学生", reading: "がくせい", meaning: "student",
+    partOfSpeech: "noun", type: WordType.KANGO, category: "family",
+    mnemonic: "GAKU-SEI → 学 (learn) + 生 (life) = a life of learning → student.",
+    examples: [
+      { jp: "私は大学の学生です。", reading: "わたしはだいがくのがくせいです。", en: "I am a university student." },
+      { jp: "あの人は学生ですか。", reading: "あのひとはがくせいですか。", en: "Is that person a student?" },
+    ],
+    collocations: ["大学生", "高校生"],
+    kanji: [
+      { char: "学", reading: "ガク", meaning: "learn, study", onyomi: ["ガク"], kunyomi: ["まな(ぶ)"] },
+      { char: "生", reading: "セイ", meaning: "born, life", onyomi: ["セイ", "ショウ"], kunyomi: ["う(まれる)", "い(きる)"] },
+    ],
+  },
+  {
+    lemma: "兄", reading: "あに", meaning: "older brother (humble)",
+    partOfSpeech: "noun", type: WordType.WAGO, category: "family",
+    mnemonic: "A-NI → 兄 shows a mouth over legs — the older one who speaks up first.",
+    examples: [
+      { jp: "兄は医者です。", reading: "あにはいしゃです。", en: "My older brother is a doctor." },
+      { jp: "兄が二人います。", reading: "あにがふたりいます。", en: "I have two older brothers." },
+    ],
+    collocations: ["お兄さん", "兄弟"],
+    kanji: [
+      { char: "兄", reading: "あに / ケイ", meaning: "older brother", onyomi: ["ケイ"], kunyomi: ["あに"] },
+    ],
+  },
+  {
+    lemma: "姉", reading: "あね", meaning: "older sister (humble)",
+    partOfSpeech: "noun", type: WordType.WAGO, category: "family",
+    mnemonic: "A-NE → 姉 has 女 (woman) on the left — the elder woman of the family.",
+    examples: [
+      { jp: "姉は東京に住んでいます。", reading: "あねはとうきょうにすんでいます。", en: "My older sister lives in Tokyo." },
+      { jp: "姉のように優しい。", reading: "あねのようにやさしい。", en: "Kind like an older sister." },
+    ],
+    collocations: ["お姉さん", "姉妹"],
+    kanji: [
+      { char: "姉", reading: "あね / シ", meaning: "older sister", onyomi: ["シ"], kunyomi: ["あね"] },
+    ],
+  },
+  {
+    lemma: "子供", reading: "こども", meaning: "child, children",
+    partOfSpeech: "noun", type: WordType.KANGO, category: "family",
+    mnemonic: "KO-DO-MO → 子 (child) + 供 (companion) = small companions → children.",
+    examples: [
+      { jp: "子供たちが遊んでいます。", reading: "こどもたちがあそんでいます。", en: "The children are playing." },
+      { jp: "子供のとき東京にいました。", reading: "こどものときとうきょうにいました。", en: "When I was a child, I lived in Tokyo." },
+    ],
+    collocations: ["子供の時", "三人の子供"],
+    kanji: [
+      { char: "子", reading: "コ / シ", meaning: "child", onyomi: ["シ", "ス"], kunyomi: ["こ"] },
+      { char: "供", reading: "ども / キョウ", meaning: "accompany; plural", onyomi: ["キョウ", "ク"], kunyomi: ["とも", "そな(える)"] },
+    ],
+  },
+
+  // --- More verbs (4) ---
+  {
+    lemma: "行く", reading: "いく", meaning: "to go",
+    partOfSpeech: "verb (godan)", type: WordType.WAGO, category: "verb",
+    mnemonic: "I-KU → 行 shows a person striding forward on two legs.",
+    examples: [
+      { jp: "学校へ行きます。", reading: "がっこうへいきます。", en: "I go to school." },
+      { jp: "明日東京へ行く。", reading: "あしたとうきょうへいく。", en: "I'll go to Tokyo tomorrow." },
+    ],
+    collocations: ["学校へ行く", "旅行に行く"],
+    kanji: [
+      { char: "行", reading: "い(く) / コウ", meaning: "go", onyomi: ["コウ", "ギョウ"], kunyomi: ["い(く)", "おこな(う)"] },
+    ],
+  },
+  {
+    lemma: "来る", reading: "くる", meaning: "to come",
+    partOfSpeech: "verb (irregular)", type: WordType.WAGO, category: "verb",
+    mnemonic: "KU-RU → 来 shows a person approaching — someone is coming toward you.",
+    examples: [
+      { jp: "友達が来ます。", reading: "ともだちがきます。", en: "My friend is coming." },
+      { jp: "電車が来ました。", reading: "でんしゃがきました。", en: "The train has arrived." },
+    ],
+    collocations: ["電車が来る", "家に来る"],
+    kanji: [
+      { char: "来", reading: "く(る) / ライ", meaning: "come", onyomi: ["ライ"], kunyomi: ["く(る)", "き(たる)"] },
+    ],
+  },
+  {
+    lemma: "見る", reading: "みる", meaning: "to see, to watch",
+    partOfSpeech: "verb (ichidan)", type: WordType.WAGO, category: "verb",
+    mnemonic: "MI-RU → 見 is an eye (目) on legs — the eye walks around and sees.",
+    examples: [
+      { jp: "映画を見ます。", reading: "えいがをみます。", en: "I watch a movie." },
+      { jp: "空を見てください。", reading: "そらをみてください。", en: "Please look at the sky." },
+    ],
+    collocations: ["テレビを見る", "映画を見る"],
+    kanji: [
+      { char: "見", reading: "み(る) / ケン", meaning: "see", onyomi: ["ケン"], kunyomi: ["み(る)"] },
+    ],
+  },
+  {
+    lemma: "寝る", reading: "ねる", meaning: "to sleep; to go to bed",
+    partOfSpeech: "verb (ichidan)", type: WordType.WAGO, category: "verb",
+    mnemonic: "NE-RU → 寝 has 宀 (roof) over a person — lying under a roof to sleep.",
+    examples: [
+      { jp: "十時に寝ます。", reading: "じゅうじにねます。", en: "I go to bed at 10." },
+      { jp: "昨日早く寝ました。", reading: "きのうはやくねました。", en: "I went to bed early yesterday." },
+    ],
+    collocations: ["早く寝る", "よく寝る"],
+    kanji: [
+      { char: "寝", reading: "ね(る) / シン", meaning: "sleep, lie down", onyomi: ["シン"], kunyomi: ["ね(る)"] },
+    ],
+  },
+
+  // --- Food (6) ---
+  {
+    lemma: "ごはん", reading: "ごはん", meaning: "cooked rice; a meal",
+    partOfSpeech: "noun", type: WordType.WAGO, category: "food",
+    mnemonic: "GO-HAN → \"Go, Han!\" — Han Solo dashing to a hot rice bowl.",
+    examples: [
+      { jp: "ごはんを食べましょう。", reading: "ごはんをたべましょう。", en: "Let's eat." },
+      { jp: "朝ごはんはパンです。", reading: "あさごはんはパンです。", en: "Breakfast is bread." },
+    ],
+    collocations: ["朝ごはん", "ごはんを食べる"],
+    kanji: [],
+  },
+  {
+    lemma: "水", reading: "みず", meaning: "water",
+    partOfSpeech: "noun", type: WordType.WAGO, category: "food",
+    mnemonic: "MI-ZU → \"Me-zoo\" — every zoo animal needs water.",
+    examples: [
+      { jp: "水を一杯ください。", reading: "みずをいっぱいください。", en: "One glass of water, please." },
+      { jp: "冷たい水が好きです。", reading: "つめたいみずがすきです。", en: "I like cold water." },
+    ],
+    collocations: ["水を飲む", "冷たい水"],
+    kanji: [
+      { char: "水", reading: "みず", meaning: "water", onyomi: ["スイ"], kunyomi: ["みず"] },
+    ],
+  },
+  {
+    lemma: "肉", reading: "にく", meaning: "meat",
+    partOfSpeech: "noun", type: WordType.WAGO, category: "food",
+    mnemonic: "NI-KU → 肉 looks like ribs hanging from a hook.",
+    examples: [
+      { jp: "肉が大好きです。", reading: "にくがだいすきです。", en: "I love meat." },
+      { jp: "今夜は肉を食べます。", reading: "こんやはにくをたべます。", en: "I'll eat meat tonight." },
+    ],
+    collocations: ["肉を食べる", "お肉屋さん"],
+    kanji: [
+      { char: "肉", reading: "にく", meaning: "meat, flesh", onyomi: ["ニク"], kunyomi: [] },
+    ],
+  },
+  {
+    lemma: "魚", reading: "さかな", meaning: "fish",
+    partOfSpeech: "noun", type: WordType.WAGO, category: "food",
+    mnemonic: "SA-KA-NA → the kanji 魚 is literally a fish — head, scaled body, tail fins.",
+    examples: [
+      { jp: "魚が好きです。", reading: "さかながすきです。", en: "I like fish." },
+      { jp: "魚を焼きます。", reading: "さかなをやきます。", en: "I'll grill fish." },
+    ],
+    collocations: ["魚を食べる", "新しい魚"],
+    kanji: [
+      { char: "魚", reading: "さかな", meaning: "fish", onyomi: ["ギョ"], kunyomi: ["さかな", "うお"] },
+    ],
+  },
+  {
+    lemma: "おいしい", reading: "おいしい", meaning: "delicious; tasty",
+    partOfSpeech: "i-adjective", type: WordType.WAGO, category: "food",
+    mnemonic: "O-I-SHI-I → \"Oh-ee-she-ee!\" — a gasp of joy after the first bite.",
+    examples: [
+      { jp: "このケーキはおいしい。", reading: "このケーキはおいしい。", en: "This cake is delicious." },
+      { jp: "とてもおいしかったです。", reading: "とてもおいしかったです。", en: "It was very tasty." },
+    ],
+    collocations: ["おいしい料理", "とてもおいしい"],
+    kanji: [],
+  },
+  {
+    lemma: "食堂", reading: "しょくどう", meaning: "cafeteria; dining hall",
+    partOfSpeech: "noun", type: WordType.KANGO, category: "food",
+    mnemonic: "SHOKU-DOU → 食 (eat) + 堂 (hall) = \"eating hall\" → cafeteria.",
+    examples: [
+      { jp: "学校の食堂で食べます。", reading: "がっこうのしょくどうでたべます。", en: "I eat in the school cafeteria." },
+      { jp: "食堂は一階にあります。", reading: "しょくどうはいっかいにあります。", en: "The cafeteria is on the first floor." },
+    ],
+    collocations: ["社員食堂", "学生食堂"],
+    kanji: [
+      { char: "食", reading: "ショク", meaning: "eat, food", onyomi: ["ショク"], kunyomi: ["た(べる)", "く(う)"] },
+      { char: "堂", reading: "ドウ", meaning: "hall, chamber", onyomi: ["ドウ"], kunyomi: [] },
     ],
   },
 ];
