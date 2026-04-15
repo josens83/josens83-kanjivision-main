@@ -4,6 +4,7 @@ import { PLANS, ONE_SHOT_PACKS, type Plan } from "@/lib/tiers";
 import { useAppStore } from "@/lib/store";
 import clsx from "clsx";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 function Card({ plan, onSelect, current }: { plan: Plan; onSelect: (p: Plan) => void; current: string }) {
   const isCurrent = current === plan.tier;
@@ -45,13 +46,12 @@ function Card({ plan, onSelect, current }: { plan: Plan; onSelect: (p: Plan) => 
 export default function PricingPage() {
   const user = useAppStore((s) => s.user);
   const upgrade = useAppStore((s) => s.upgrade);
-  const signIn = useAppStore((s) => s.signIn);
+  const router = useRouter();
 
   async function handleSelect(plan: Plan) {
     if (!user) {
-      const email = prompt("Enter your email to continue");
-      if (!email) return;
-      signIn(email);
+      router.push(`/signup?next=${encodeURIComponent("/pricing")}`);
+      return;
     }
     // In production this hits POST /api/subscribe which opens Paddle/Toss checkout.
     const res = await fetch("/api/subscribe", {
