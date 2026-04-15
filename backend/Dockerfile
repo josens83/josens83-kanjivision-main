@@ -1,39 +1,28 @@
-# KanjiVision AI backend — Railway / Fly.io compatible image.
-FROM node:20-slim AS builder
+FROM node:20-slim AS base
 
+FROM base AS deps
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
+COPY package.json ./
+COPY prisma ./prisma/
+RUN npm install
 
-RUN apt-get update \
- && apt-get install -y --no-install-recommends openssl ca-certificates \
- && rm -rf /var/lib/apt/lists/*
-
-COPY package.json package-lock.json* ./
-RUN npm install --no-audit --no-fund
-
-COPY prisma ./prisma
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 RUN npx prisma generate
-
-COPY tsconfig.json ./
-COPY src ./src
 RUN npm run build
 
-# --- runtime image ---
-FROM node:20-slim AS runner
-
-ENV NODE_ENV=production \
-    PORT=3001
-
+FROM base AS runner
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-
-RUN apt-get update \
- && apt-get install -y --no-install-recommends openssl ca-certificates \
- && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /app/node_modules ./node_modules
+ENV NODE_ENV=production
+COPY package.json ./
+RUN npm install --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
-COPY package.json ./
-
-EXPOSE 3001
-
-CMD ["node", "dist/index.js"]
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+EXPOSE 8080
+ENV PORT=8080
+CMD ["npm", "start"]
