@@ -12,6 +12,7 @@ import authRoutes from "./routes/auth.routes";
 import contentRoutes from "./routes/content.routes";
 import healthRoutes from "./routes/health.routes";
 import imageRoutes from "./routes/image.routes";
+import learningRoutes from "./routes/learning.routes";
 import paymentRoutes from "./routes/payment.routes";
 import progressRoutes from "./routes/progress.routes";
 import sessionRoutes from "./routes/session.routes";
@@ -50,6 +51,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/images", imageRoutes);
+app.use("/api/learning", learningRoutes);
 
 // --- 404 + error ---
 app.use(notFound);
