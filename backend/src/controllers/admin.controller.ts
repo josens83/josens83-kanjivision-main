@@ -1,8 +1,14 @@
 import type { Response } from "express";
 import { z } from "zod";
-import { ExamCategory, UserTier, WordType } from "@prisma/client";
+import { ExamCategory, Prisma, UserTier, WordType } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
+
+const exampleSchema = z.object({
+  jp: z.string(),
+  reading: z.string(),
+  en: z.string(),
+});
 
 const createWordSchema = z.object({
   lemma: z.string(),
@@ -11,11 +17,11 @@ const createWordSchema = z.object({
   partOfSpeech: z.string(),
   examCategory: z.nativeEnum(ExamCategory),
   type: z.nativeEnum(WordType).default("WAGO"),
+  category: z.string().optional(),
   tierRequired: z.nativeEnum(UserTier).default("FREE"),
   mnemonic: z.string().optional(),
-  exampleJp: z.string().optional(),
-  exampleReading: z.string().optional(),
-  exampleEn: z.string().optional(),
+  examples: z.array(exampleSchema).default([]),
+  collocations: z.array(z.string()).default([]),
   kanji: z
     .array(
       z.object({
@@ -52,11 +58,11 @@ export async function createWord(req: AuthenticatedRequest, res: Response) {
       partOfSpeech: body.partOfSpeech,
       examCategory: body.examCategory,
       type: body.type,
+      category: body.category,
       tierRequired: body.tierRequired,
       mnemonic: body.mnemonic,
-      exampleJp: body.exampleJp,
-      exampleReading: body.exampleReading,
-      exampleEn: body.exampleEn,
+      examples: body.examples as unknown as Prisma.InputJsonValue,
+      collocations: body.collocations,
       kanjiParts: {
         create: body.kanji.map((k, i) => ({
           position: i,

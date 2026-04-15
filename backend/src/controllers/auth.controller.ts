@@ -1,13 +1,13 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 import { z } from "zod";
 import type { User } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 
-const ACCESS_TTL = "7d";
-const REFRESH_TTL = "30d";
+const ACCESS_TTL: SignOptions["expiresIn"] = "7d";
+const REFRESH_TTL: SignOptions["expiresIn"] = "30d";
 const BCRYPT_ROUNDS = 12;
 
 const emailField = z.string().email().transform((e) => e.trim().toLowerCase());
@@ -35,8 +35,8 @@ interface TokenPayload {
   typ: "access" | "refresh";
 }
 
-function secret(): string {
-  return process.env.JWT_SECRET ?? "dev-secret-change-me";
+function secret(): Secret {
+  return (process.env.JWT_SECRET ?? "dev-secret-change-me") as Secret;
 }
 
 function issueTokens(user: User) {

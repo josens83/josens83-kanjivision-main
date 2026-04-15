@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 
 export interface AuthenticatedRequest extends Request {
   userId?: string;
@@ -9,6 +9,10 @@ export interface AuthenticatedRequest extends Request {
 interface JwtPayload {
   sub: string;
   tier?: "FREE" | "BASIC" | "PREMIUM";
+}
+
+function getSecret(): Secret {
+  return (process.env.JWT_SECRET ?? "dev-secret-change-me") as Secret;
 }
 
 export function requireAuth(
@@ -23,7 +27,7 @@ export function requireAuth(
   }
   const token = header.slice("Bearer ".length);
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET ?? "dev") as JwtPayload;
+    const payload = jwt.verify(token, getSecret()) as JwtPayload;
     req.userId = payload.sub;
     req.userTier = payload.tier ?? "FREE";
     next();
@@ -45,7 +49,8 @@ export function requireTier(min: "FREE" | "BASIC" | "PREMIUM") {
 }
 
 export function signToken(userId: string, tier: "FREE" | "BASIC" | "PREMIUM"): string {
-  return jwt.sign({ sub: userId, tier }, process.env.JWT_SECRET ?? "dev", {
-    expiresIn: process.env.JWT_EXPIRES_IN ?? "7d",
-  });
+  const options: SignOptions = {
+    expiresIn: (process.env.JWT_EXPIRES_IN ?? "7d") as SignOptions["expiresIn"],
+  };
+  return jwt.sign({ sub: userId, tier }, getSecret(), options);
 }
