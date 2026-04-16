@@ -24,14 +24,14 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Force Railway/Docker build-cache invalidation — bump the date when Railway
-# serves a stale cached build despite new commits on main.
-RUN echo "Force rebuild 2026-04-16-14:00" > /tmp/rebuild-marker
+# Force rebuild marker — bump the date when Railway serves a stale build.
+RUN echo "Force rebuild 2026-04-16-15:00" > /tmp/rebuild-marker
 
 EXPOSE 8080
 ENV PORT=8080
 
-# Wrap start with a preamble that echoes the effective start script to
-# Railway's logs. Makes it obvious at a glance whether the image was built
-# from the current package.json or a stale cache.
-CMD ["sh", "-c", "echo '== PACKAGE.JSON START SCRIPT ==' && cat package.json | grep -A1 '\"start\"' && echo '== RUNNING NPM START ==' && npm start"]
+# Direct exec-form CMD — no shell wrapper, no railway.json override.
+# initDatabase() inside src/index.ts handles DB bootstrap after listen().
+# Healthcheck path should be set in the Railway dashboard → Service
+# Settings → Deploy → Healthcheck Path: /health
+CMD ["node", "dist/index.js"]
