@@ -6,9 +6,10 @@
     "watchPatterns": ["backend/**"]
   },
   "deploy": {
-    "startCommand": "echo '=== STARTING API ===' && echo '--- PWD ---' && pwd && echo '--- ls -la ---' && ls -la && echo '--- ls -la dist/ ---' && (ls -la dist/ 2>&1 || echo 'NO dist/ DIRECTORY') && echo '--- ls -la node_modules/.prisma ---' && (ls -la node_modules/.prisma 2>&1 || echo 'NO .prisma') && echo '--- NODE VERSION ---' && node --version && echo '--- NODE ENV CHECK ---' && node -e \"console.log('node can execute; cwd=' + process.cwd())\" && echo '--- DIRECT FILE CHECK ---' && node -e \"const fs=require('fs'); console.log('dist/index.js exists:', fs.existsSync('dist/index.js'), 'size:', fs.existsSync('dist/index.js') ? fs.statSync('dist/index.js').size : 0)\" && echo '=== EXECUTING INDEX.JS ===' && node dist/index.js 2>&1",
+    "startCommand": "echo '=== STARTING API ===' && echo '--- pwd ---' && pwd && echo '--- ls -la ---' && ls -la && echo '--- ls dist ---' && ls -la dist/ 2>&1 && echo '--- node version ---' && node --version && echo '--- env check ---' && echo \"DATABASE_URL set: $(if [ -z \"$DATABASE_URL\" ]; then echo NO; else echo YES; fi)\" && echo '=== EXECUTING INDEX.JS ===' && node dist/index.js 2>&1",
     "healthcheckPath": "/health",
+    "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
+    "restartPolicyMaxRetries": 3
   }
 }
