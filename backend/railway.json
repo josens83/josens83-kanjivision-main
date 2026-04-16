@@ -6,7 +6,7 @@
     "watchPatterns": ["backend/**"]
   },
   "deploy": {
-    "startCommand": "echo '=== DB PUSH STARTING ===' && npx prisma db push --accept-data-loss --skip-generate && (npx prisma db seed || true) && echo '=== STARTING API ===' && node dist/index.js",
+    "startCommand": "echo '=== STARTING API ===' && node dist/index.js",
     "healthcheckPath": "/health",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
