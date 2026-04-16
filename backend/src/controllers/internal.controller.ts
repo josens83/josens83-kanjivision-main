@@ -33,9 +33,26 @@ const generateSchema = z.object({
   category: z.string().optional(),
 });
 
+// GET form — same semantics, but all params arrive as query strings.
+const generateQuerySchema = z.object({
+  exam: z.nativeEnum(ExamCategory).default(ExamCategory.JLPT_N5),
+  count: z.coerce.number().int().min(1).max(25).default(10),
+  category: z.string().optional(),
+});
+
 const batchSchema = z.object({
   exam: z.nativeEnum(ExamCategory).default(ExamCategory.JLPT_N5),
   totalCount: z.number().int().min(1).max(200).default(20),
+  category: z.string().optional(),
+});
+
+// GET batch — VocaVision-style param names: batchSize + totalTarget.
+// batchSize is accepted for parity but ignored (we always chunk by 10 so a
+// single batch fits comfortably in the Claude max_tokens budget).
+const batchQuerySchema = z.object({
+  exam: z.nativeEnum(ExamCategory).default(ExamCategory.JLPT_N5),
+  batchSize: z.coerce.number().int().min(1).max(25).optional(),
+  totalTarget: z.coerce.number().int().min(1).max(200).default(50),
   category: z.string().optional(),
 });
 
@@ -278,10 +295,23 @@ export async function generateWords(req: Request, res: Response) {
   });
 }
 
-export async function generateWordsBatch(req: Request, res: Response) {
-  const { exam, totalCount, category } = batchSchema.parse(req.body);
-  const batchSize = 10;
-  const batches = Math.ceil(totalCount / batchSize);
+interface BatchRunResult {
+  batches: number;
+  totalReceived: number;
+  totalCreated: number;
+  totalSkipped: number;
+  errors: string[];
+}
+
+/** Shared batch runner used by both the POST and GET entrypoints. */
+async function runBatch(
+  exam: ExamCategory,
+  totalCount: number,
+  batchSize: number,
+  category: string | undefined
+): Promise<BatchRunResult> {
+  const effectiveSize = Math.max(1, Math.min(batchSize, totalCount));
+  const batches = Math.ceil(totalCount / effectiveSize);
 
   let totalCreated = 0;
   let totalSkipped = 0;
@@ -289,8 +319,8 @@ export async function generateWordsBatch(req: Request, res: Response) {
   const errors: string[] = [];
 
   for (let i = 0; i < batches; i++) {
-    const remaining = totalCount - i * batchSize;
-    const size = Math.min(batchSize, remaining);
+    const remaining = totalCount - i * effectiveSize;
+    const size = Math.min(effectiveSize, remaining);
     // Refresh the exclusion list each batch so words produced earlier in the
     // same request don't get generated again.
     const existingLemmas = await getExistingLemmas(exam);
@@ -307,15 +337,51 @@ export async function generateWordsBatch(req: Request, res: Response) {
     }
   }
 
+  return { batches, totalReceived, totalCreated, totalSkipped, errors };
+}
+
+export async function generateWordsBatch(req: Request, res: Response) {
+  const { exam, totalCount, category } = batchSchema.parse(req.body);
+  const result = await runBatch(exam, totalCount, 10, category);
   res.json({
     ok: true,
     exam,
     category: category ?? null,
     totalCount,
-    batches,
-    totalReceived,
-    totalCreated,
-    totalSkipped,
-    errors,
+    batchSize: 10,
+    ...result,
+  });
+}
+
+// ---------- GET variants (browser-friendly) ----------
+
+export async function generateWordsGet(req: Request, res: Response) {
+  const { exam, count, category } = generateQuerySchema.parse(req.query);
+  const existingLemmas = await getExistingLemmas(exam);
+  const words = await callClaude(count, exam, category, existingLemmas);
+  const result = await persistWords(words, exam);
+  res.json({
+    ok: true,
+    exam,
+    category: category ?? null,
+    requested: count,
+    received: words.length,
+    ...result,
+  });
+}
+
+export async function generateWordsBatchGet(req: Request, res: Response) {
+  const { exam, batchSize, totalTarget, category } = batchQuerySchema.parse(
+    req.query
+  );
+  const effectiveBatchSize = batchSize ?? 10;
+  const result = await runBatch(exam, totalTarget, effectiveBatchSize, category);
+  res.json({
+    ok: true,
+    exam,
+    category: category ?? null,
+    totalTarget,
+    batchSize: effectiveBatchSize,
+    ...result,
   });
 }
