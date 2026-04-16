@@ -1,3 +1,15 @@
+// VERY FIRST LINE — proves node entered the file. If we don't see this,
+// the issue is upstream (build artifact missing, wrong CMD, etc.).
+process.stdout.write("[boot] node entered dist/index.js\n");
+
+// Surface any uncaught error to stdout BEFORE the process exits.
+process.on("uncaughtException", (err) => {
+  process.stderr.write(`[boot] uncaughtException: ${err.stack ?? err}\n`);
+});
+process.on("unhandledRejection", (reason) => {
+  process.stderr.write(`[boot] unhandledRejection: ${String(reason)}\n`);
+});
+
 import "dotenv/config";
 import { exec } from "node:child_process";
 import cors from "cors";
@@ -5,9 +17,13 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
+process.stdout.write("[boot] core deps loaded\n");
+
 import { errorHandler, notFound } from "./middleware/error.middleware";
 import { logger } from "./lib/logger";
 import { prisma } from "./lib/prisma";
+
+process.stdout.write("[boot] middleware + logger + prisma module loaded\n");
 
 import adminRoutes from "./routes/admin.routes";
 import authRoutes from "./routes/auth.routes";
@@ -23,8 +39,10 @@ import subscriptionRoutes from "./routes/subscription.routes";
 import userRoutes from "./routes/user.routes";
 import wordRoutes from "./routes/word.routes";
 
+process.stdout.write("[boot] all route modules loaded\n");
+
 const app = express();
-const PORT = Number(process.env.PORT ?? 3001);
+const PORT = Number(process.env.PORT ?? 8080);
 
 const origins =
   process.env.CORS_ORIGIN?.split(",").map((s) => s.trim()).filter(Boolean) ?? [
@@ -38,10 +56,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // --- Root health endpoint (Railway healthcheckPath = /health) ---
-// Always 200 — we want Railway to mark the service up even while the
-// background DB bootstrap is still running. Application routes that need
-// tables will fail until initDatabase() completes; the frontend falls back
-// to its seed cards during that window.
+// Always 200 — DB-free. Lets Railway mark the service healthy even while
+// the background DB bootstrap is still running.
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", service: "kanjivision" });
 });
@@ -65,22 +81,20 @@ app.use("/api/internal", internalRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+process.stdout.write(`[boot] express app configured, calling listen(${PORT})\n`);
+
+app.listen(PORT, "0.0.0.0", () => {
+  // eslint-disable-next-line no-console
+  console.log("🚀 KanjiVision API running on port " + PORT);
+  logger.info({ port: PORT, origins }, "kanjivision-backend listening");
+  // Fire-and-forget — never blocks listen() and never throws.
+  initDatabase().catch((err) => {
+    logger.error({ err }, "initDatabase crashed");
+  });
+});
+
 // ---------------------------------------------------------------------------
-// Background DB bootstrap
-//
-// Why not in startCommand: `prisma db push` has been observed to hang against
-// Supabase's pooler during the pre-listen phase, which blocks Railway's
-// healthcheck and kills the container before any tables get created. Running
-// it from inside the Node process lets the server listen immediately (health
-// green) while the schema sync happens in the background.
-//
-// Flow:
-//   1. Probe for a known table (Word.findFirst).
-//   2. Already-exists → done, return.
-//   3. P2021 (table missing) → exec `prisma db push`, then run the seed.
-//   4. Other errors → log and move on; the API is up, the operator can
-//      trigger a manual sync via /api/internal/generate-words-batch or by
-//      pasting backend/prisma/migrations/.../migration.sql into Supabase.
+// Background DB bootstrap (declared AFTER listen — never blocks boot)
 // ---------------------------------------------------------------------------
 
 interface PrismaError {
@@ -97,7 +111,6 @@ function runCommand(cmd: string, timeoutMs = 120_000): Promise<string> {
       }
       resolve(stdout + (stderr ? `\n[stderr]\n${stderr}` : ""));
     });
-    // Stream child output to our logs so we can see the hang if one happens.
     child.stdout?.on("data", (d: Buffer) => process.stdout.write(d));
     child.stderr?.on("data", (d: Buffer) => process.stderr.write(d));
   });
@@ -138,15 +151,5 @@ async function initDatabase(): Promise<void> {
     logger.warn({ err }, "prisma db seed failed (API still up)");
   }
 }
-
-app.listen(PORT, "0.0.0.0", () => {
-  // eslint-disable-next-line no-console
-  console.log("🚀 KanjiVision API running on port " + PORT);
-  logger.info({ port: PORT, origins }, "kanjivision-backend listening");
-  // Fire-and-forget — never blocks listen().
-  initDatabase().catch((err) => {
-    logger.error({ err }, "initDatabase crashed");
-  });
-});
 
 export default app;
