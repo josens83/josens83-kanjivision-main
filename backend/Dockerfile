@@ -23,6 +23,15 @@ RUN npm install --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Force Railway/Docker build-cache invalidation — bump the date when Railway
+# serves a stale cached build despite new commits on main.
+RUN echo "Force rebuild 2026-04-16-14:00" > /tmp/rebuild-marker
+
 EXPOSE 8080
 ENV PORT=8080
-CMD ["npm", "start"]
+
+# Wrap start with a preamble that echoes the effective start script to
+# Railway's logs. Makes it obvious at a glance whether the image was built
+# from the current package.json or a stale cache.
+CMD ["sh", "-c", "echo '== PACKAGE.JSON START SCRIPT ==' && cat package.json | grep -A1 '\"start\"' && echo '== RUNNING NPM START ==' && npm start"]
