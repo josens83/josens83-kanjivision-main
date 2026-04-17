@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1018"/>
+      <stop offset="1" stop-color="#1a1f2c"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff8fa3"/>
+      <stop offset="1" stop-color="#ef4361"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Large background kanji -->
+  <text x="900" y="450" font-family="Noto Sans JP, Hiragino Sans, sans-serif" font-weight="900" font-size="400" fill="#ef4361" fill-opacity="0.07">漢</text>
+  <!-- Brand -->
+  <rect x="60" y="50" width="56" height="56" rx="14" fill="url(#accent)"/>
+  <text x="88" y="92" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-weight="900" font-size="34" fill="#fff">漢</text>
+  <text x="132" y="88" font-family="system-ui, sans-serif" font-weight="800" font-size="28" fill="#fff">KanjiVision<tspan fill="#ef4361"> AI</tspan></text>
+  <!-- Headline -->
+  <text x="60" y="220" font-family="system-ui, sans-serif" font-weight="900" font-size="56" fill="#fff">Learn JLPT vocabulary</text>
+  <text x="60" y="290" font-family="system-ui, sans-serif" font-weight="900" font-size="56" fill="url(#accent)">one kanji at a time.</text>
+  <!-- Subtitle -->
+  <text x="60" y="350" font-family="system-ui, sans-serif" font-weight="400" font-size="24" fill="#7b8494">AI decomposition · Mnemonics · Spaced repetition · N5→N1</text>
+  <!-- Card preview -->
+  <rect x="740" y="140" width="380" height="320" rx="24" fill="#1a1f2c" stroke="#3c4454" stroke-width="1"/>
+  <text x="780" y="195" font-family="system-ui, sans-serif" font-size="14" fill="#7b8494">Today's card · N5</text>
+  <text x="930" y="280" text-anchor="middle" font-family="Noto Sans JP, Hiragino Sans, sans-serif" font-weight="700" font-size="80" fill="#fff">学校</text>
+  <text x="930" y="315" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-size="18" fill="#ff8fa3">school · がっこう</text>
+  <rect x="790" y="340" width="120" height="80" rx="12" fill="#0d1018" stroke="#3c4454" stroke-width="1"/>
+  <text x="850" y="380" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-weight="700" font-size="36" fill="#ff8fa3">学</text>
+  <text x="850" y="408" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#7b8494">learn · ガク</text>
+  <rect x="930" y="340" width="120" height="80" rx="12" fill="#0d1018" stroke="#3c4454" stroke-width="1"/>
+  <text x="990" y="380" text-anchor="middle" font-family="Noto Sans JP, sans-serif" font-weight="700" font-size="36" fill="#ff8fa3">校</text>
+  <text x="990" y="408" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#7b8494">building · コウ</text>
+  <!-- Domain -->
+  <text x="60" y="580" font-family="system-ui, sans-serif" font-weight="600" font-size="20" fill="#7b8494">kanjivision.app</text>
+  <text x="280" y="580" font-family="system-ui, sans-serif" font-weight="400" font-size="18" fill="#3c4454">Part of the Vision Platform · Unipath</text>
+</svg>

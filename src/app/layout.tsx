@@ -6,13 +6,14 @@ import { AuthBoot } from "@/components/AuthBoot";
 
 export const metadata: Metadata = {
   title: {
-    default: "KanjiVision AI — Japanese, Visualized.",
+    default: "KanjiVision AI — Learn JLPT Vocabulary with AI",
     template: "%s · KanjiVision AI",
   },
   description:
-    "Learn JLPT N5 → N1 vocabulary with AI-generated mnemonics, kanji decomposition, and spaced repetition. Web · App · Mobile.",
+    "Master JLPT kanji through AI decomposition, mnemonics, and spaced repetition. N5 to N1. Web, mobile PWA, native apps.",
   manifest: "/manifest.json",
   applicationName: "KanjiVision AI",
+  metadataBase: new URL("https://kanjivision.app"),
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -23,13 +24,28 @@ export const metadata: Metadata = {
     apple: "/icon.svg",
   },
   openGraph: {
-    title: "KanjiVision AI — Japanese, Visualized.",
+    title: "KanjiVision AI — Learn JLPT Vocabulary with AI",
     description:
-      "JLPT N5→N1 vocabulary with AI-generated visual mnemonics and kanji decomposition.",
+      "Master JLPT kanji through AI decomposition, mnemonics, and spaced repetition.",
     url: "https://kanjivision.app",
     siteName: "KanjiVision AI",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "KanjiVision AI — Learn JLPT vocabulary one kanji at a time.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KanjiVision AI — Learn JLPT Vocabulary with AI",
+    description:
+      "Master JLPT kanji through AI decomposition, mnemonics, and spaced repetition.",
+    images: ["/og-image.png"],
   },
 };
 
