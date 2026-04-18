@@ -44,10 +44,16 @@ process.stdout.write("[boot] all route modules loaded\n");
 const app = express();
 const PORT = Number(process.env.PORT ?? 8080);
 
-const origins =
-  process.env.CORS_ORIGIN?.split(",").map((s) => s.trim()).filter(Boolean) ?? [
-    "http://localhost:3000",
-  ];
+const origins: (string | RegExp)[] = [
+  "https://josens83-kanjivision-main.vercel.app",
+  "http://localhost:3000",
+];
+if (process.env.CORS_ORIGIN) {
+  for (const o of process.env.CORS_ORIGIN.split(",")) {
+    const trimmed = o.trim();
+    if (trimmed) origins.push(trimmed);
+  }
+}
 
 app.use(helmet());
 app.use(cors({ origin: origins, credentials: true }));
