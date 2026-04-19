@@ -24,6 +24,10 @@ import {
   joinTextContent,
 } from "../lib/claude";
 import { logger } from "../lib/logger";
+import {
+  buildImagePrompt,
+  generateStabilityImage,
+} from "../lib/image.service";
 
 // ---------- request schemas ----------
 
@@ -384,4 +388,146 @@ export async function generateWordsBatchGet(req: Request, res: Response) {
     batchSize: effectiveBatchSize,
     ...result,
   });
+}
+
+// ---------- Image generation ----------
+
+const imageQuerySchema = z.object({
+  exam: z.nativeEnum(ExamCategory).default(ExamCategory.JLPT_N5),
+  count: z.coerce.number().int().min(1).max(25).default(10),
+});
+
+/**
+ * GET /api/internal/generate-images?key=...&exam=JLPT_N5&count=10
+ *
+ * For each word that doesn't yet have a MnemonicImage:
+ *  1. Build a visual prompt using the word's meaning + kanji decomposition
+ *  2. Optionally enhance via Claude (if ANTHROPIC_API_KEY is set)
+ *  3. Call Stability AI (or fall back to placeholder)
+ *  4. Persist a MnemonicImage row
+ */
+export async function generateImagesGet(req: Request, res: Response) {
+  const { exam, count } = imageQuerySchema.parse(req.query);
+
+  const wordsWithoutImages = await prisma.word.findMany({
+    where: {
+      examCategory: exam,
+      mnemonicImages: { none: {} },
+    },
+    include: { kanjiParts: { orderBy: { position: "asc" } } },
+    take: count,
+    orderBy: { createdAt: "asc" },
+  });
+
+  if (wordsWithoutImages.length === 0) {
+    return res.json({
+      ok: true,
+      exam,
+      message: "all words already have images",
+      generated: 0,
+    });
+  }
+
+  let generated = 0;
+  let failed = 0;
+  const errors: string[] = [];
+
+  for (const word of wordsWithoutImages) {
+    try {
+      const kanjiParts = word.kanjiParts.map((k) => ({
+        char: k.char,
+        meaning: k.meaning,
+      }));
+
+      let prompt = buildImagePrompt(
+        word.lemma,
+        word.meaning,
+        kanjiParts,
+        word.mnemonic
+      );
+
+      // Optionally enhance prompt via Claude
+      prompt = await enhancePromptWithClaude(
+        word.lemma,
+        word.meaning,
+        kanjiParts,
+        prompt
+      );
+
+      const result = await generateStabilityImage(prompt);
+
+      await prisma.mnemonicImage.create({
+        data: {
+          wordId: word.id,
+          prompt,
+          url: result.url,
+          provider: result.provider,
+        },
+      });
+
+      generated += 1;
+      logger.info(
+        { lemma: word.lemma, provider: result.provider },
+        "image generated"
+      );
+    } catch (err) {
+      failed += 1;
+      const msg = err instanceof Error ? err.message : String(err);
+      errors.push(`${word.lemma}: ${msg}`);
+      logger.error({ err, lemma: word.lemma }, "image generation failed");
+    }
+  }
+
+  res.json({
+    ok: true,
+    exam,
+    candidates: wordsWithoutImages.length,
+    generated,
+    failed,
+    errors: errors.length > 0 ? errors : undefined,
+  });
+}
+
+/**
+ * Use Claude to refine the image prompt for better visual output.
+ * Falls back to the original prompt if the API key isn't set or the call fails.
+ */
+async function enhancePromptWithClaude(
+  lemma: string,
+  meaning: string,
+  kanjiParts: Array<{ char: string; meaning: string }>,
+  fallbackPrompt: string
+): Promise<string> {
+  try {
+    const client = getClaudeClient();
+
+    const kanjiDesc =
+      kanjiParts.length > 0
+        ? `Kanji decomposition: ${kanjiParts.map((k) => `${k.char}(${k.meaning})`).join(" + ")}.`
+        : "This word is written in hiragana/katakana.";
+
+    const response = await client.messages.create({
+      model: CLAUDE_MODEL,
+      max_tokens: 300,
+      system: [
+        {
+          type: "text",
+          text: "You are an expert at writing Stable Diffusion prompts for educational vocabulary illustrations. Output ONLY the prompt, no explanation.",
+          cache_control: { type: "ephemeral" },
+        },
+      ],
+      messages: [
+        {
+          role: "user",
+          content: `Create a Stable Diffusion prompt for the Japanese word "${lemma}" meaning "${meaning}". ${kanjiDesc} The image should visually encode the meaning in a cute, memorable way that helps learners remember the word. Japanese kawaii style, warm pastel colors, clean vector art, white background, no text or letters.`,
+        },
+      ],
+    });
+
+    const text = joinTextContent(response.content).trim();
+    if (text.length > 20) return text;
+    return fallbackPrompt;
+  } catch {
+    return fallbackPrompt;
+  }
 }

@@ -4,6 +4,7 @@ import {
   generateWordsBatch,
   generateWordsBatchGet,
   generateWordsGet,
+  generateImagesGet,
 } from "../controllers/internal.controller";
 import { requireInternalKey } from "../middleware/internal.middleware";
 
@@ -19,5 +20,6 @@ router.post("/generate-words-batch", generateWordsBatch);
 // e.g. GET /api/internal/generate-words-batch?key=XXX&exam=JLPT_N5&batchSize=10&totalTarget=50
 router.get("/generate-words", generateWordsGet);
 router.get("/generate-words-batch", generateWordsBatchGet);
+router.get("/generate-images", generateImagesGet);
 
 export default router;
