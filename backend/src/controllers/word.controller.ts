@@ -12,7 +12,10 @@ const listSchema = z.object({
   cursor: z.string().optional(),
 });
 
-const wordInclude = { kanjiParts: { orderBy: { position: "asc" as const } } };
+const wordInclude = {
+  kanjiParts: { orderBy: { position: "asc" as const } },
+  mnemonicImages: { orderBy: { createdAt: "desc" as const }, take: 1 },
+};
 
 export async function list(req: Request, res: Response) {
   const q = listSchema.parse(req.query);

@@ -19,6 +19,11 @@ interface ServerExample {
   en: string;
 }
 
+interface ServerMnemonicImage {
+  url: string;
+  provider: string;
+}
+
 interface ServerWord {
   id: string;
   lemma: string;
@@ -33,6 +38,7 @@ interface ServerWord {
   examples: ServerExample[] | null;
   collocations: string[] | null;
   kanjiParts: ServerKanji[];
+  mnemonicImages?: ServerMnemonicImage[] | null;
 }
 
 interface QueueResponse {
@@ -83,6 +89,7 @@ export function toFrontendWord(s: ServerWord): Word {
     examples: s.examples ?? [],
     collocations: s.collocations ?? [],
     tier,
+    imageUrl: s.mnemonicImages?.[0]?.url ?? null,
   };
 }
 

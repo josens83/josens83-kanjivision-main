@@ -21,7 +21,10 @@ const gradeSchema = z.object({
   quality: z.number().int().min(0).max(5),
 });
 
-const wordInclude = { kanjiParts: { orderBy: { position: "asc" as const } } };
+const wordInclude = {
+  kanjiParts: { orderBy: { position: "asc" as const } },
+  mnemonicImages: { orderBy: { createdAt: "desc" as const }, take: 1 },
+};
 
 /**
  * Build a learning queue: due reviews first, then fresh words the user

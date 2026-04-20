@@ -94,6 +94,13 @@ export function FlashCard({ word, onGrade }: Props) {
               <div className="chip">
                 {word.examCategory.replace("_", " ")} &middot; {word.type}
               </div>
+              {word.imageUrl ? (
+                <img
+                  src={word.imageUrl}
+                  alt={`${word.lemma} mnemonic`}
+                  className="h-32 w-32 rounded-xl object-cover shadow-card"
+                />
+              ) : null}
               <ruby className="text-6xl font-bold sm:text-7xl">
                 {word.lemma}
                 <rt>{word.reading}</rt>
@@ -161,8 +168,15 @@ export function FlashCard({ word, onGrade }: Props) {
                 </section>
               )}
 
-              {/* Mnemonic */}
+              {/* Mnemonic image + text */}
               <section className="rounded-xl border border-sakura-500/20 bg-sakura-500/5 p-3 text-sm">
+                {word.imageUrl && (
+                  <img
+                    src={word.imageUrl}
+                    alt={`${word.lemma} mnemonic`}
+                    className="mb-2 h-40 w-full rounded-lg object-cover"
+                  />
+                )}
                 <span className="font-semibold text-sakura-200">Mnemonic: </span>
                 {word.mnemonic}
               </section>

@@ -42,6 +42,7 @@ export interface Word {
   examples: Example[];       // 2 examples (N5 scope)
   collocations: string[];    // 2 collocations
   tier: "free" | "basic" | "premium";
+  imageUrl?: string | null;  // AI-generated mnemonic image (from MnemonicImage)
 }
 
 // ---------------------------------------------------------------------------
