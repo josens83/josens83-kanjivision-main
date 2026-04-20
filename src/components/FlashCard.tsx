@@ -20,6 +20,11 @@ export function FlashCard({ word, onGrade }: Props) {
   const [flipped, setFlipped] = useState(false);
   const [animDir, setAnimDir] = useState<"left" | "right" | null>(null);
   const [gradeIcon, setGradeIcon] = useState<string | null>(null);
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [word.id]);
 
   const doGrade = useCallback(
     (q: number) => {
@@ -94,10 +99,12 @@ export function FlashCard({ word, onGrade }: Props) {
               <div className="chip">
                 {word.examCategory.replace("_", " ")} &middot; {word.type}
               </div>
-              {word.imageUrl ? (
+              {word.imageUrl && !imgError ? (
                 <img
                   src={word.imageUrl}
                   alt={`${word.lemma} mnemonic`}
+                  loading="lazy"
+                  onError={() => setImgError(true)}
                   className="h-32 w-32 rounded-xl object-cover shadow-card"
                 />
               ) : null}
@@ -170,10 +177,12 @@ export function FlashCard({ word, onGrade }: Props) {
 
               {/* Mnemonic image + text */}
               <section className="rounded-xl border border-sakura-500/20 bg-sakura-500/5 p-3 text-sm">
-                {word.imageUrl && (
+                {word.imageUrl && !imgError && (
                   <img
                     src={word.imageUrl}
                     alt={`${word.lemma} mnemonic`}
+                    loading="lazy"
+                    onError={() => setImgError(true)}
                     className="mb-2 h-40 w-full rounded-lg object-cover"
                   />
                 )}
