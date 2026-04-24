@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
@@ -12,10 +13,34 @@ const LINKS = [
   { href: "/pricing", label: "Pricing" },
 ];
 
+const USER_MENU = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/bookmarks", label: "Bookmarks" },
+  { href: "/statistics", label: "Statistics" },
+  { href: "/settings", label: "Settings" },
+  { href: "/account", label: "Account" },
+];
+
 export function NavBar() {
   const pathname = usePathname();
   const user = useAppStore((s) => s.user);
   const signOut = useAppStore((s) => s.signOut);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-30 border-b border-ink-400/10 bg-ink-900/80 backdrop-blur">
@@ -47,14 +72,43 @@ export function NavBar() {
         </ul>
         <div className="flex items-center gap-2">
           {user ? (
-            <>
-              <span className="chip hidden sm:inline-flex">
-                {user.tier === "premium" ? "★ Premium" : user.tier === "basic" ? "Basic" : "Free"}
-              </span>
-              <button className="btn-ghost !py-1.5 !text-xs" onClick={signOut}>
-                Sign out
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen((v) => !v)}
+                className="flex items-center gap-1.5 rounded-full border border-ink-400/30 px-3 py-1.5 text-xs transition hover:bg-ink-800"
+              >
+                <span className="hidden sm:inline text-sakura-300">
+                  {user.tier === "premium" ? "★" : user.tier === "basic" ? "◆" : "○"}
+                </span>
+                <span className="max-w-[100px] truncate">
+                  {user.email.split("@")[0]}
+                </span>
+                <span className="text-ink-400">▾</span>
               </button>
-            </>
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-1 w-48 rounded-xl border border-ink-400/20 bg-ink-800 py-1 shadow-card">
+                  {USER_MENU.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={clsx(
+                        "block px-4 py-2 text-sm transition hover:bg-ink-900/60",
+                        pathname?.startsWith(item.href) ? "text-sakura-300" : "text-ink-100"
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                  <div className="my-1 border-t border-ink-400/20" />
+                  <button
+                    onClick={signOut}
+                    className="block w-full px-4 py-2 text-left text-sm text-red-400 transition hover:bg-ink-900/60"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <Link href="/signin" className="btn-primary !py-1.5 !text-xs">
               Sign in

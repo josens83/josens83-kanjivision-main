@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { deleteAccount, getProfile, updateProfile } from "../controllers/user.controller";
+import { changePassword, deleteAccount, getProfile, updateProfile } from "../controllers/user.controller";
 import { requireAuth } from "../middleware/auth.middleware";
 
 const router = Router();
 router.use(requireAuth);
 router.get("/me", getProfile);
-router.patch("/me", updateProfile);
-router.delete("/me", deleteAccount);
+router.put("/profile", updateProfile);
+router.put("/password", changePassword);
+router.delete("/account", deleteAccount);
 export default router;
