@@ -61,7 +61,10 @@ model User {
   passwordHash   String?
   displayName    String?
   locale         String         @default("en")
-  tier           UserTier       @default(FREE)
+  tier            UserTier       @default(FREE)
+  dailyGoal       Int            @default(20)
+  dailyProgress   Int            @default(0)
+  lastGoalReset   DateTime?
   emailVerifiedAt DateTime?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt

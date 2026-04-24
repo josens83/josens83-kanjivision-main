@@ -130,6 +130,9 @@ export const apiGet = <T = unknown>(path: string, opts: RequestOptions = {}) =>
 export const apiPost = <T = unknown>(path: string, body?: unknown, opts: RequestOptions = {}) =>
   api<T>(path, { ...opts, method: "POST", body });
 
+export const apiPut = <T = unknown>(path: string, body?: unknown, opts: RequestOptions = {}) =>
+  api<T>(path, { ...opts, method: "PUT", body });
+
 export const apiDelete = <T = unknown>(path: string, opts: RequestOptions = {}) =>
   api<T>(path, { ...opts, method: "DELETE" });
 

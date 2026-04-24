@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAppStore } from "@/lib/store";
 import { WORDS, EXAM_LEVELS } from "@/data/words";
 import { isDue } from "@/lib/srs";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPut } from "@/lib/api";
 
 interface ProgressStats {
   total: number;
@@ -26,6 +26,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<ProgressStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [fallback, setFallback] = useState(false);
+  const [goal, setGoal] = useState<{ dailyGoal: number; dailyProgress: number } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -40,6 +41,10 @@ export default function DashboardPage() {
         setFallback(true);
       }
       setLoading(false);
+    });
+    apiGet<{ dailyGoal: number; dailyProgress: number }>("/api/goals/daily").then((res) => {
+      if (!alive) return;
+      if (res.ok && res.data) setGoal(res.data);
     });
     return () => {
       alive = false;
@@ -103,8 +108,58 @@ export default function DashboardPage() {
         <Stat label="Mastered" value={shown.mastered.toString()} />
       </section>
 
+      {/* Daily goal widget */}
+      {goal && (
+        <section className="card">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold">Daily goal</h2>
+            <select
+              className="rounded-lg border border-ink-400/30 bg-ink-800 px-2 py-1 text-xs"
+              value={goal.dailyGoal}
+              onChange={async (e) => {
+                const g = Number(e.target.value);
+                setGoal((prev) => prev ? { ...prev, dailyGoal: g } : prev);
+                await apiPut("/api/goals/daily", { goal: g });
+              }}
+            >
+              {[5, 10, 15, 20, 30, 50].map((n) => (
+                <option key={n} value={n}>{n} cards</option>
+              ))}
+            </select>
+          </div>
+          <div className="mt-3 flex items-center gap-4">
+            <div className="relative h-16 w-16">
+              <svg className="h-16 w-16 -rotate-90" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.5" fill="none" stroke="currentColor" strokeWidth="3" className="text-ink-800" />
+                <circle
+                  cx="18" cy="18" r="15.5" fill="none" strokeWidth="3"
+                  strokeDasharray={`${Math.min(100, (goal.dailyProgress / goal.dailyGoal) * 100)} 100`}
+                  strokeLinecap="round"
+                  className={goal.dailyProgress >= goal.dailyGoal ? "text-emerald-400" : "text-sakura-400"}
+                />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">
+                {goal.dailyProgress}/{goal.dailyGoal}
+              </span>
+            </div>
+            <div>
+              <div className="text-sm font-semibold">
+                {goal.dailyProgress >= goal.dailyGoal ? "Goal reached!" : `${goal.dailyGoal - goal.dailyProgress} more to go`}
+              </div>
+              <div className="text-xs text-ink-400">Cards reviewed today</div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold">Continue learning</h2>
+        <Link href="/statistics" className="btn-ghost !py-1.5 !text-xs">
+          Statistics &rarr;
+        </Link>
+      </div>
+
       <section>
-        <h2 className="mb-3 text-lg font-bold">Continue learning</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {EXAM_LEVELS.map((lv) => (
             <Link
