@@ -12,6 +12,7 @@ process.on("unhandledRejection", (reason) => {
 
 import "dotenv/config";
 import { exec } from "node:child_process";
+import compression from "compression";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
@@ -20,8 +21,9 @@ import morgan from "morgan";
 process.stdout.write("[boot] core deps loaded\n");
 
 import { errorHandler, notFound } from "./middleware/error.middleware";
+import { rateLimiter } from "./middleware/rateLimiter.middleware";
 import { logger } from "./lib/logger";
-import { prisma } from "./lib/prisma";
+import { prisma, disconnectPrisma } from "./lib/prisma";
 
 process.stdout.write("[boot] middleware + logger + prisma module loaded\n");
 
@@ -56,6 +58,8 @@ if (process.env.CORS_ORIGIN) {
 }
 
 app.use(helmet());
+app.use(compression({ level: 6, threshold: 1024 }));
+app.use(rateLimiter);
 app.use(cors({ origin: origins, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -89,15 +93,24 @@ app.use(errorHandler);
 
 process.stdout.write(`[boot] express app configured, calling listen(${PORT})\n`);
 
-app.listen(PORT, "0.0.0.0", () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   // eslint-disable-next-line no-console
   console.log("🚀 KanjiVision API running on port " + PORT);
   logger.info({ port: PORT, origins }, "kanjivision-backend listening");
-  // Fire-and-forget — never blocks listen() and never throws.
   initDatabase().catch((err) => {
     logger.error({ err }, "initDatabase crashed");
   });
 });
+
+// --- Graceful shutdown ---
+async function shutdown(signal: string) {
+  logger.info({ signal }, "shutting down");
+  server.close();
+  await disconnectPrisma();
+  process.exit(0);
+}
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
 // ---------------------------------------------------------------------------
 // Background DB bootstrap (declared AFTER listen — never blocks boot)

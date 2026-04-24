@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { ExamCategory, Prisma, UserTier } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
+import { getWordCount, setWordCount } from "../lib/cache";
 
 const listSchema = z.object({
   exam: z.nativeEnum(ExamCategory).optional(),
@@ -78,13 +79,18 @@ export async function daily(req: Request, res: Response) {
 }
 
 export async function count(_req: Request, res: Response) {
+  const cached = getWordCount<{ total: number; byExam: Record<string, number> }>();
+  if (cached) return res.json(cached);
+
   const rows = await prisma.word.groupBy({
     by: ["examCategory"],
     _count: { _all: true },
   });
   const byExam = Object.fromEntries(rows.map((r) => [r.examCategory, r._count._all]));
   const total = rows.reduce((acc, r) => acc + r._count._all, 0);
-  res.json({ total, byExam });
+  const result = { total, byExam };
+  setWordCount(result, 3600);
+  res.json(result);
 }
 
 const searchSchema = z.object({
