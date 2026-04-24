@@ -7,6 +7,7 @@ import { useAppStore } from "@/lib/store";
 
 const LINKS = [
   { href: "/learn", label: "Learn" },
+  { href: "/bookmarks", label: "Bookmarks" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/pricing", label: "Pricing" },
 ];

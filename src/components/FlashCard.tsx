@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import type { Word } from "@/data/words";
+import { apiPost, apiGet } from "@/lib/api";
+import { useAppStore } from "@/lib/store";
 
 interface Props {
   word: Word;
@@ -21,10 +23,17 @@ export function FlashCard({ word, onGrade }: Props) {
   const [animDir, setAnimDir] = useState<"left" | "right" | null>(null);
   const [gradeIcon, setGradeIcon] = useState<string | null>(null);
   const [imgError, setImgError] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+  const user = useAppStore((s) => s.user);
 
   useEffect(() => {
     setImgError(false);
-  }, [word.id]);
+    setBookmarked(false);
+    if (!user) return;
+    apiGet<{ bookmarked: boolean }>(`/api/bookmarks/${word.id}`).then((res) => {
+      if (res.ok && res.data) setBookmarked(res.data.bookmarked);
+    });
+  }, [word.id, user]);
 
   const doGrade = useCallback(
     (q: number) => {
@@ -96,8 +105,27 @@ export function FlashCard({ word, onGrade }: Props) {
         >
           {!flipped ? (
             <div className="flex h-full flex-col items-center justify-center gap-4 py-8">
-              <div className="chip">
-                {word.examCategory.replace("_", " ")} &middot; {word.type}
+              <div className="flex items-center gap-2">
+                <div className="chip">
+                  {word.examCategory.replace("_", " ")} &middot; {word.type}
+                </div>
+                {user && (
+                  <button
+                    type="button"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      setBookmarked((v) => !v);
+                      await apiPost("/api/bookmarks/toggle", { wordId: word.id });
+                    }}
+                    className={clsx(
+                      "text-xl transition",
+                      bookmarked ? "text-red-400" : "text-ink-400/40 hover:text-red-300"
+                    )}
+                    aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
+                  >
+                    {bookmarked ? "♥" : "♡"}
+                  </button>
+                )}
               </div>
               {word.imageUrl && !imgError ? (
                 <img

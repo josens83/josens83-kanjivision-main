@@ -29,6 +29,7 @@ process.stdout.write("[boot] middleware + logger + prisma module loaded\n");
 
 import adminRoutes from "./routes/admin.routes";
 import authRoutes from "./routes/auth.routes";
+import bookmarkRoutes from "./routes/bookmark.routes";
 import contentRoutes from "./routes/content.routes";
 import healthRoutes from "./routes/health.routes";
 import imageRoutes from "./routes/image.routes";
@@ -75,6 +76,7 @@ app.get("/health", (_req, res) => {
 // --- 11 API routes ---
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/bookmarks", bookmarkRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/words", wordRoutes);
 app.use("/api/progress", progressRoutes);

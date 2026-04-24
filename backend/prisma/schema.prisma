@@ -71,6 +71,7 @@ model User {
   progress       Progress[]
   sessions       StudySession[]
   mnemonicImages MnemonicImage[]
+  bookmarks      Bookmark[]
 
   @@index([email])
 }
@@ -96,6 +97,7 @@ model Word {
   kanjiParts     KanjiPart[]
   progress       Progress[]
   mnemonicImages MnemonicImage[]
+  bookmarks      Bookmark[]
 
   @@index([examCategory])
   @@index([tierRequired])
@@ -118,6 +120,22 @@ model KanjiPart {
 
   @@index([wordId])
   @@index([char])
+}
+
+// ---------- Bookmarks ----------
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  wordId    String
+  notes     String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word      Word     @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, wordId])
+  @@index([userId])
 }
 
 // ---------- Study / SRS ----------
