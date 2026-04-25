@@ -142,3 +142,55 @@ export async function submitQuiz(req: AuthenticatedRequest, res: Response) {
     achievementUnlocked,
   });
 }
+
+// ---------- Level Test ----------
+
+const LEVEL_EXAMS: ExamCategory[] = [ExamCategory.JLPT_N5, ExamCategory.JLPT_N4, ExamCategory.JLPT_N3, ExamCategory.JLPT_N2, ExamCategory.JLPT_N1];
+
+export async function levelTestQuestions(req: Request, res: Response) {
+  const allWords: Array<{ id: string; lemma: string; reading: string; meaning: string; examCategory: ExamCategory }> = [];
+  for (const exam of LEVEL_EXAMS) {
+    const words = await prisma.word.findMany({ where: { examCategory: exam }, select: { id: true, lemma: true, reading: true, meaning: true, examCategory: true }, take: 100 });
+    allWords.push(...words);
+  }
+  if (allWords.length < 4) return res.status(400).json({ error: "not enough words" });
+  const selected = shuffle(allWords).slice(0, 20);
+  const questions = selected.map((w) => {
+    const wrongs = shuffle(allWords.filter((o) => o.id !== w.id)).slice(0, 3).map((o) => o.meaning);
+    const opts = shuffle([w.meaning, ...wrongs]);
+    return { wordId: w.id, word: w.lemma, reading: w.reading, options: opts, correctIndex: opts.indexOf(w.meaning), level: w.examCategory };
+  });
+  res.json({ questions, totalQuestions: questions.length });
+}
+
+export async function levelTestSubmit(req: AuthenticatedRequest, res: Response) {
+  const { answers } = z.object({ answers: z.array(z.object({ wordId: z.string(), selectedIndex: z.number() })) }).parse(req.body);
+  const wordIds = answers.map((a) => a.wordId);
+  const words = await prisma.word.findMany({ where: { id: { in: wordIds } }, select: { id: true, meaning: true, examCategory: true } });
+  const wordMap = new Map(words.map((w) => [w.id, w]));
+  const allWords = await prisma.word.findMany({ select: { id: true, meaning: true } });
+
+  let score = 0;
+  const byLevel: Record<string, { correct: number; total: number }> = {};
+  for (const a of answers) {
+    const w = wordMap.get(a.wordId);
+    if (!w) continue;
+    const wrongs = shuffle(allWords.filter((o) => o.id !== w.id)).slice(0, 3).map((o) => o.meaning);
+    const opts = [w.meaning, ...wrongs];
+    const correct = a.selectedIndex >= 0 && a.selectedIndex < opts.length && opts[a.selectedIndex] === w.meaning;
+    if (correct) score++;
+    const lv = w.examCategory;
+    if (!byLevel[lv]) byLevel[lv] = { correct: 0, total: 0 };
+    byLevel[lv].total++;
+    if (correct) byLevel[lv].correct++;
+  }
+
+  const pct = Math.round((score / answers.length) * 100);
+  const recommendedLevel = pct >= 90 ? "N1" : pct >= 75 ? "N2" : pct >= 60 ? "N3" : pct >= 40 ? "N4" : "N5";
+
+  if (req.userId) {
+    await prisma.user.update({ where: { id: req.userId }, data: { recommendedLevel } }).catch(() => {});
+  }
+
+  res.json({ score, total: answers.length, percentage: pct, recommendedLevel, breakdown: byLevel });
+}

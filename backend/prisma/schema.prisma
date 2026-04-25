@@ -74,6 +74,7 @@ model User {
   autoRenewal      Boolean        @default(false)
   resetToken       String?
   resetTokenExpiry DateTime?
+  recommendedLevel String?
   emailVerifiedAt  DateTime?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -233,6 +234,19 @@ model MnemonicImage {
   user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([wordId])
+}
+
+// ---------- Collections ----------
+
+model Collection {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  icon         String?
+  wordIds      String[] @default([])
+  isPublic     Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
 }
 
 // ---------- Announcements ----------

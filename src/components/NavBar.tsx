@@ -20,6 +20,7 @@ const USER_MENU = [
   { href: "/achievements", label: "Achievements" },
   { href: "/statistics", label: "Statistics" },
   { href: "/settings", label: "Settings" },
+  { href: "/my", label: "My subscription" },
   { href: "/account", label: "Account" },
 ];
 
