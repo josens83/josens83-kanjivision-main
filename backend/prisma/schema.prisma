@@ -64,10 +64,15 @@ model User {
   googleId        String?        @unique
   locale          String         @default("en")
   tier            UserTier       @default(FREE)
-  dailyGoal       Int            @default(20)
-  dailyProgress   Int            @default(0)
-  lastGoalReset   DateTime?
-  emailVerifiedAt DateTime?
+  dailyGoal        Int            @default(20)
+  dailyProgress    Int            @default(0)
+  lastGoalReset    DateTime?
+  subscriptionPlan String?
+  subscriptionStatus String?
+  subscriptionEnd  DateTime?
+  paddleSubscriptionId String?
+  autoRenewal      Boolean        @default(false)
+  emailVerifiedAt  DateTime?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 

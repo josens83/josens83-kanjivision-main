@@ -37,6 +37,7 @@ import healthRoutes from "./routes/health.routes";
 import imageRoutes from "./routes/image.routes";
 import internalRoutes from "./routes/internal.routes";
 import learningRoutes from "./routes/learning.routes";
+import paddleRoutes from "./routes/paddle.routes";
 import paymentRoutes from "./routes/payment.routes";
 import progressRoutes from "./routes/progress.routes";
 import quizRoutes from "./routes/quiz.routes";
@@ -65,7 +66,14 @@ app.use(helmet());
 app.use(compression({ level: 6, threshold: 1024 }));
 app.use(rateLimiter);
 app.use(cors({ origin: origins, credentials: true }));
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({
+  limit: "1mb",
+  verify: (req: any, _res, buf) => {
+    if (req.url?.includes("/paddle/webhook")) {
+      req.rawBody = buf.toString();
+    }
+  },
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
@@ -86,6 +94,7 @@ app.use("/api/progress", progressRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
+app.use("/api/paddle", paddleRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/achievements", achievementRoutes);
 app.use("/api/admin", adminRoutes);
