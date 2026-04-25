@@ -3,6 +3,7 @@ import { z } from "zod";
 import { ExamCategory } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
+import { unlockQuizPerfect } from "./achievement.controller";
 
 const questionsSchema = z.object({
   exam: z.nativeEnum(ExamCategory).default(ExamCategory.JLPT_N5),
@@ -106,10 +107,18 @@ export async function submitQuiz(req: AuthenticatedRequest, res: Response) {
   }
 
   const total = answers.length;
+  const percentage = Math.round((score / total) * 100);
+
+  let achievementUnlocked: string | null = null;
+  if (req.userId && percentage === 100) {
+    achievementUnlocked = await unlockQuizPerfect(req.userId);
+  }
+
   res.json({
     score,
     total,
-    percentage: Math.round((score / total) * 100),
+    percentage,
     results,
+    achievementUnlocked,
   });
 }

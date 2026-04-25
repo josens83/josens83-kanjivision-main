@@ -27,6 +27,7 @@ import { prisma, disconnectPrisma } from "./lib/prisma";
 
 process.stdout.write("[boot] middleware + logger + prisma module loaded\n");
 
+import achievementRoutes from "./routes/achievement.routes";
 import adminRoutes from "./routes/admin.routes";
 import authRoutes from "./routes/auth.routes";
 import bookmarkRoutes from "./routes/bookmark.routes";
@@ -86,6 +87,7 @@ app.use("/api/quiz", quizRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/achievements", achievementRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/goals", goalsRoutes);

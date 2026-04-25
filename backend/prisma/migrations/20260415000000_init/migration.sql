@@ -75,6 +75,47 @@ CREATE TABLE "KanjiPart" (
 );
 
 -- CreateTable
+CREATE TABLE "Achievement" (
+    "id" TEXT NOT NULL,
+    "key" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "icon" TEXT NOT NULL,
+    "condition" TEXT NOT NULL,
+    "threshold" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Achievement_pkey" PRIMARY KEY ("id")
+);
+
+CREATE UNIQUE INDEX "Achievement_key_key" ON "Achievement"("key");
+
+-- CreateTable
+CREATE TABLE "UserAchievement" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "achievementId" TEXT NOT NULL,
+    "unlockedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "UserAchievement_pkey" PRIMARY KEY ("id")
+);
+
+CREATE UNIQUE INDEX "UserAchievement_userId_achievementId_key" ON "UserAchievement"("userId", "achievementId");
+CREATE INDEX "UserAchievement_userId_idx" ON "UserAchievement"("userId");
+
+ALTER TABLE "UserAchievement" ADD CONSTRAINT "UserAchievement_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "UserAchievement" ADD CONSTRAINT "UserAchievement_achievementId_fkey" FOREIGN KEY ("achievementId") REFERENCES "Achievement"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Seed achievements
+INSERT INTO "Achievement" ("id","key","name","description","icon","condition","threshold") VALUES
+  ('ach_01','first_step','First Step','Learn your first word','🌱','words_learned',1),
+  ('ach_02','quick_learner','Quick Learner','Learn 10 words','📖','words_learned',10),
+  ('ach_03','bookworm','Bookworm','Learn 50 words','📚','words_learned',50),
+  ('ach_04','on_fire','On Fire','3-day streak','🔥','streak',3),
+  ('ach_05','blazing','Blazing','7-day streak','🔥','streak',7),
+  ('ach_06','collector','Collector','Bookmark 5 words','⭐','bookmarks',5),
+  ('ach_07','perfect_score','Perfect Score','100% on a quiz','💯','quiz_perfect',1),
+  ('ach_08','master','Master','Master 50 words','🏆','mastered',50);
+
+-- CreateTable
 CREATE TABLE "Bookmark" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,

@@ -142,10 +142,11 @@ export const useAppStore = create<AppState>()(
         const next = srsReview(prev, quality);
         set((s) => ({ progress: { ...s.progress, [wordId]: next } }));
 
-        if (!get().user) return; // unauthenticated: local-only
+        if (!get().user) return;
         await apiPost(`/api/progress/${encodeURIComponent(wordId)}/grade`, {
           quality,
         });
+        apiPost("/api/achievements/check").catch(() => {});
       },
 
       bumpStreak: () => {

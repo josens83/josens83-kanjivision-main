@@ -17,6 +17,7 @@ const LINKS = [
 const USER_MENU = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/bookmarks", label: "Bookmarks" },
+  { href: "/achievements", label: "Achievements" },
   { href: "/statistics", label: "Statistics" },
   { href: "/settings", label: "Settings" },
   { href: "/account", label: "Account" },
