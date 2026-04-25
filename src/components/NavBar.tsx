@@ -8,6 +8,7 @@ import { useAppStore } from "@/lib/store";
 
 const LINKS = [
   { href: "/learn", label: "Learn" },
+  { href: "/quiz", label: "Quiz" },
   { href: "/bookmarks", label: "Bookmarks" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/pricing", label: "Pricing" },
