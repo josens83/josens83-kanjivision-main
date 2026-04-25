@@ -31,11 +31,14 @@ import achievementRoutes from "./routes/achievement.routes";
 import adminRoutes from "./routes/admin.routes";
 import authRoutes from "./routes/auth.routes";
 import bookmarkRoutes from "./routes/bookmark.routes";
+import chatRoutes from "./routes/chat.routes";
+import deckRoutes from "./routes/deck.routes";
 import contentRoutes from "./routes/content.routes";
 import goalsRoutes from "./routes/goals.routes";
 import healthRoutes from "./routes/health.routes";
 import imageRoutes from "./routes/image.routes";
 import internalRoutes from "./routes/internal.routes";
+import leagueRoutes from "./routes/league.routes";
 import learningRoutes from "./routes/learning.routes";
 import notificationRoutes from "./routes/notification.routes";
 import paddleRoutes from "./routes/paddle.routes";
@@ -90,6 +93,8 @@ app.get("/health", (_req, res) => {
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/bookmarks", bookmarkRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/decks", deckRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/words", wordRoutes);
 app.use("/api/progress", progressRoutes);
@@ -107,6 +112,7 @@ app.use("/api/images", imageRoutes);
 app.use("/api/learning", learningRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/internal", internalRoutes);
+app.use("/api/league", leagueRoutes);
 
 // --- 404 + error ---
 app.use(notFound);

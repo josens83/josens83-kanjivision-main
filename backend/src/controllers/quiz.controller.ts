@@ -8,7 +8,7 @@ import { unlockQuizPerfect } from "./achievement.controller";
 const questionsSchema = z.object({
   exam: z.nativeEnum(ExamCategory).default(ExamCategory.JLPT_N5),
   count: z.coerce.number().int().min(1).max(30).default(10),
-  type: z.string().default("multiple_choice"),
+  type: z.enum(["multiple_choice", "fill", "match", "timed"]).default("multiple_choice"),
 });
 
 function shuffle<T>(arr: T[]): T[] {
@@ -21,7 +21,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export async function getQuestions(req: Request, res: Response) {
-  const { exam, count } = questionsSchema.parse(req.query);
+  const { exam, count, type } = questionsSchema.parse(req.query);
 
   const allWords = await prisma.word.findMany({
     where: { examCategory: exam },
@@ -49,7 +49,27 @@ export async function getQuestions(req: Request, res: Response) {
     };
   });
 
-  res.json({ exam, type: "multiple_choice", count: questions.length, questions });
+  if (type === "fill") {
+    const fillQ = selected.map((w) => ({
+      wordId: w.id, meaning: w.meaning, answer: w.lemma, reading: w.reading,
+    }));
+    return res.json({ exam, type, count: fillQ.length, questions: fillQ });
+  }
+  if (type === "match") {
+    const pairs = selected.slice(0, 5).map((w) => ({ wordId: w.id, word: w.lemma, meaning: w.meaning }));
+    const shuffledMeanings = shuffle(pairs.map((p) => p.meaning));
+    return res.json({ exam, type, pairs, shuffledMeanings });
+  }
+  if (type === "timed") {
+    const timedQ = shuffle(allWords).slice(0, 20).map((word) => {
+      const wrongs = shuffle(allWords.filter((w) => w.id !== word.id)).slice(0, 3).map((w) => w.meaning);
+      const opts = shuffle([word.meaning, ...wrongs]);
+      return { wordId: word.id, word: word.lemma, reading: word.reading, options: opts, correctIndex: opts.indexOf(word.meaning) };
+    });
+    return res.json({ exam, type, count: timedQ.length, questions: timedQ, timeLimit: 60 });
+  }
+
+  res.json({ exam, type, count: questions.length, questions });
 }
 
 const answerSchema = z.object({
