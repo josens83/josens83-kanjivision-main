@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppStore } from "@/lib/store";
+import { GoogleButton } from "@/components/GoogleButton";
 
 function SignInInner() {
   const signIn = useAppStore((s) => s.signIn);
@@ -43,7 +44,17 @@ function SignInInner() {
         </div>
       )}
 
-      <form onSubmit={submit} className="mt-6 flex flex-col gap-3">
+      <div className="mt-6">
+        <GoogleButton label="Google로 로그인" />
+      </div>
+
+      <div className="my-4 flex items-center gap-3">
+        <div className="h-px flex-1 bg-ink-400/20" />
+        <span className="text-xs text-ink-400">또는</span>
+        <div className="h-px flex-1 bg-ink-400/20" />
+      </div>
+
+      <form onSubmit={submit} className="flex flex-col gap-3">
         <label className="text-xs uppercase tracking-widest text-ink-400">Email</label>
         <input
           className="rounded-xl border border-ink-400/30 bg-ink-800 px-4 py-3 text-sm outline-none focus:border-sakura-500"

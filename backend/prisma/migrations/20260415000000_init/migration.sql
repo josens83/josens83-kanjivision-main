@@ -25,6 +25,8 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "passwordHash" TEXT,
     "displayName" TEXT,
+    "provider" TEXT NOT NULL DEFAULT 'email',
+    "googleId" TEXT,
     "locale" TEXT NOT NULL DEFAULT 'en',
     "tier" "UserTier" NOT NULL DEFAULT 'FREE',
     "dailyGoal" INTEGER NOT NULL DEFAULT 20,
@@ -164,6 +166,7 @@ CREATE TABLE "Payment" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "User_googleId_key" ON "User"("googleId");
 CREATE INDEX "User_email_idx" ON "User"("email");
 
 -- CreateIndex

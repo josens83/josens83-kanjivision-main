@@ -116,7 +116,129 @@ export async function refresh(req: Request, res: Response) {
 }
 
 export async function logout(_req: AuthenticatedRequest, res: Response) {
-  // JWT is stateless — nothing to invalidate server-side in Phase 1.
-  // Phase 2: persist refresh-token JTIs and revoke here.
   res.status(204).end();
+}
+
+// ---------- Google OAuth ----------
+
+const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
+const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
+
+function getGoogleConfig() {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+  return { clientId, clientSecret };
+}
+
+function getGoogleRedirectUri(req: Request): string {
+  if (process.env.GOOGLE_REDIRECT_URI) return process.env.GOOGLE_REDIRECT_URI;
+  const proto = req.headers["x-forwarded-proto"] ?? req.protocol;
+  const host = req.headers["x-forwarded-host"] ?? req.get("host");
+  return `${proto}://${host}/api/auth/callback/google`;
+}
+
+export async function googleAuth(req: Request, res: Response) {
+  const config = getGoogleConfig();
+  if (!config) return res.status(503).json({ error: "Google OAuth not configured" });
+
+  const redirectUri = getGoogleRedirectUri(req);
+  const frontendRedirect = (req.query.redirect_uri as string) || "";
+
+  const params = new URLSearchParams({
+    client_id: config.clientId,
+    redirect_uri: redirectUri,
+    response_type: "code",
+    scope: "openid email profile",
+    access_type: "offline",
+    prompt: "consent",
+    state: frontendRedirect,
+  });
+  res.redirect(`${GOOGLE_AUTH_URL}?${params.toString()}`);
+}
+
+interface GoogleTokenResponse {
+  access_token: string;
+  id_token?: string;
+}
+
+interface GoogleUserInfo {
+  id: string;
+  email: string;
+  name?: string;
+  picture?: string;
+}
+
+export async function googleCallback(req: Request, res: Response) {
+  const config = getGoogleConfig();
+  if (!config) return res.status(503).json({ error: "Google OAuth not configured" });
+
+  const code = req.query.code as string;
+  const state = (req.query.state as string) || "";
+  if (!code) return res.status(400).json({ error: "missing code" });
+
+  const redirectUri = getGoogleRedirectUri(req);
+
+  // 1. code → access_token 교환
+  const tokenRes = await fetch(GOOGLE_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      code,
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+      redirect_uri: redirectUri,
+      grant_type: "authorization_code",
+    }),
+  });
+  if (!tokenRes.ok) {
+    const err = await tokenRes.text();
+    return res.status(400).json({ error: "google token exchange failed", detail: err });
+  }
+  const tokenData = (await tokenRes.json()) as GoogleTokenResponse;
+
+  // 2. userinfo 조회
+  const infoRes = await fetch(GOOGLE_USERINFO_URL, {
+    headers: { Authorization: `Bearer ${tokenData.access_token}` },
+  });
+  if (!infoRes.ok) return res.status(400).json({ error: "google userinfo failed" });
+  const info = (await infoRes.json()) as GoogleUserInfo;
+
+  if (!info.email) return res.status(400).json({ error: "no email from google" });
+
+  // 3. DB 조회/생성
+  let user = await prisma.user.findFirst({
+    where: { OR: [{ googleId: info.id }, { email: info.email.toLowerCase() }] },
+  });
+
+  if (user) {
+    // 기존 유저 — googleId 연결 (이메일 가입 후 구글 로그인)
+    if (!user.googleId) {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { googleId: info.id, provider: "GOOGLE" },
+      });
+    }
+  } else {
+    // 신규 유저
+    user = await prisma.user.create({
+      data: {
+        email: info.email.toLowerCase(),
+        displayName: info.name ?? null,
+        provider: "GOOGLE",
+        googleId: info.id,
+      },
+    });
+  }
+
+  // 4. JWT 발급 → 프론트엔드 콜백 페이지로 리다이렉트
+  const tokens = issueTokens(user);
+  const frontendOrigin =
+    state ||
+    process.env.FRONTEND_URL ||
+    (req.headers.origin ?? "http://localhost:3000");
+  const callbackUrl = new URL("/auth/callback/google", frontendOrigin);
+  callbackUrl.searchParams.set("token", tokens.accessToken);
+  res.redirect(callbackUrl.toString());
 }

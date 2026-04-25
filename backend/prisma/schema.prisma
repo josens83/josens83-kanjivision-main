@@ -57,10 +57,12 @@ enum PaymentStatus {
 
 model User {
   id             String         @id @default(cuid())
-  email          String         @unique
-  passwordHash   String?
-  displayName    String?
-  locale         String         @default("en")
+  email           String         @unique
+  passwordHash    String?
+  displayName     String?
+  provider        String         @default("email")
+  googleId        String?        @unique
+  locale          String         @default("en")
   tier            UserTier       @default(FREE)
   dailyGoal       Int            @default(20)
   dailyProgress   Int            @default(0)
