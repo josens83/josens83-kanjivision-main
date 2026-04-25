@@ -84,7 +84,13 @@ function SignInInner() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-xs text-ink-400">
+      <p className="mt-3 text-center text-xs">
+        <Link href="/auth/forgot-password" className="text-ink-400 hover:text-sakura-300">
+          Forgot password?
+        </Link>
+      </p>
+
+      <p className="mt-3 text-center text-xs text-ink-400">
         No account yet?{" "}
         <Link href="/signup" className="text-sakura-300 underline">
           Create one

@@ -71,6 +71,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <span className="mx-1">&middot;</span>
             <a className="underline hover:text-sakura-200" href="/legal/privacy">Privacy</a>
             <span className="mx-1">&middot;</span>
+            <a className="underline hover:text-sakura-200" href="/cs">Help</a>
+            <span className="mx-1">&middot;</span>
+            <a className="underline hover:text-sakura-200" href="/contact">Contact</a>
+            <span className="mx-1">&middot;</span>
             <a className="text-sakura-300 underline" href="https://vocavision.app">VocaVision</a>
             <span className="mx-1">&middot;</span>
             <a className="text-sakura-300 underline" href="https://hangeulvision.app">HangeulVision</a>

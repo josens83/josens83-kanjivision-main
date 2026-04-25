@@ -242,3 +242,41 @@ export async function googleCallback(req: Request, res: Response) {
   callbackUrl.searchParams.set("token", tokens.accessToken);
   res.redirect(callbackUrl.toString());
 }
+
+// ---------- Password Reset ----------
+
+import crypto from "node:crypto";
+import { sendPasswordResetEmail, sendWelcomeEmail } from "../services/email.service";
+
+export async function forgotPassword(req: Request, res: Response) {
+  const { email } = z.object({ email: emailField }).parse(req.body);
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return res.json({ ok: true });
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetTokenExpiry = new Date(Date.now() + 3600_000);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { resetToken, resetTokenExpiry },
+  });
+  const frontendUrl = process.env.FRONTEND_URL ?? "https://kanjivision.app";
+  const resetUrl = `${frontendUrl}/auth/reset-password?token=${resetToken}`;
+  sendPasswordResetEmail(email, resetUrl).catch(() => {});
+  res.json({ ok: true });
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  const { token, newPassword } = z.object({
+    token: z.string().min(1),
+    newPassword: passwordField,
+  }).parse(req.body);
+  const user = await prisma.user.findFirst({
+    where: { resetToken: token, resetTokenExpiry: { gt: new Date() } },
+  });
+  if (!user) return res.status(400).json({ error: "invalid or expired token" });
+  const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash, resetToken: null, resetTokenExpiry: null },
+  });
+  res.json({ ok: true });
+}
