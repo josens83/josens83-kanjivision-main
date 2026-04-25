@@ -235,6 +235,20 @@ model MnemonicImage {
   @@index([wordId])
 }
 
+// ---------- Announcements ----------
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  type        String    @default("INFO")
+  audience    String    @default("ALL")
+  isActive    Boolean   @default(true)
+  publishedAt DateTime  @default(now())
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
 // ---------- Leagues ----------
 
 model League {

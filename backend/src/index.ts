@@ -29,6 +29,7 @@ process.stdout.write("[boot] middleware + logger + prisma module loaded\n");
 
 import achievementRoutes from "./routes/achievement.routes";
 import adminRoutes from "./routes/admin.routes";
+import announcementRoutes from "./routes/announcement.routes";
 import authRoutes from "./routes/auth.routes";
 import bookmarkRoutes from "./routes/bookmark.routes";
 import chatRoutes from "./routes/chat.routes";
@@ -106,6 +107,7 @@ app.use("/api/paddle", paddleRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/achievements", achievementRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/announcements", announcementRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/goals", goalsRoutes);
 app.use("/api/images", imageRoutes);
