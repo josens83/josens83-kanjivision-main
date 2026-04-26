@@ -167,7 +167,7 @@ function LearnInner() {
             &larr; Prev
           </button>
           <div className="hidden text-xs sm:block">
-            Space flip &middot; 1 Again &middot; 2 Hard &middot; 3 Good &middot; 4 Easy
+            Space flip &middot; 1 Don&apos;t know &middot; 2 Got it
           </div>
           <button
             className="btn-ghost !py-1.5 !text-xs"

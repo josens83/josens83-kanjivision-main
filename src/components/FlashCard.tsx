@@ -12,10 +12,8 @@ interface Props {
 }
 
 const GRADES = [
-  { q: 1, label: "Again", key: "1", cls: "bg-red-500/80 hover:bg-red-500" },
-  { q: 3, label: "Hard", key: "2", cls: "bg-orange-500/80 hover:bg-orange-500" },
-  { q: 4, label: "Good", key: "3", cls: "bg-emerald-500/80 hover:bg-emerald-500" },
-  { q: 5, label: "Easy", key: "4", cls: "bg-sky-500/80 hover:bg-sky-500" },
+  { q: 1, label: "Don't know", key: "1", cls: "bg-red-500/80 hover:bg-red-500" },
+  { q: 4, label: "Got it", key: "2", cls: "bg-emerald-500/80 hover:bg-emerald-500" },
 ];
 
 export function FlashCard({ word, onGrade }: Props) {
@@ -141,7 +139,7 @@ export function FlashCard({ word, onGrade }: Props) {
                 <rt>{word.reading}</rt>
               </ruby>
               <p className="text-xs text-ink-400">
-                Space / Enter to reveal &middot; 1-4 to grade
+                Space / Enter to reveal &middot; 1 Don&apos;t know &middot; 2 Got it
               </p>
             </div>
           ) : (
@@ -259,7 +257,7 @@ export function FlashCard({ word, onGrade }: Props) {
 
       {/* Grade buttons */}
       {flipped && !animDir && (
-        <div className="mt-4 grid grid-cols-4 gap-2">
+        <div className="mt-4 grid grid-cols-2 gap-3">
           {GRADES.map((b) => (
             <button
               key={b.q}

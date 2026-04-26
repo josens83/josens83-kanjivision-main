@@ -3,6 +3,7 @@ import "./globals.css";
 import { NavBar } from "@/components/NavBar";
 import { ServiceWorker } from "@/components/ServiceWorker";
 import { AuthBoot } from "@/components/AuthBoot";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: {
@@ -64,24 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ServiceWorker />
         <NavBar />
         <main className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 lg:px-8">{children}</main>
-        <footer className="border-t border-ink-400/10 px-4 py-10 text-center text-xs text-ink-400">
-          <p>&copy; 2026 Unipath. All rights reserved.</p>
-          <p className="mt-2">
-            <a className="underline hover:text-sakura-200" href="/legal/terms">Terms</a>
-            <span className="mx-1">&middot;</span>
-            <a className="underline hover:text-sakura-200" href="/legal/privacy">Privacy</a>
-            <span className="mx-1">&middot;</span>
-            <a className="underline hover:text-sakura-200" href="/legal/refund-policy">Refund</a>
-            <span className="mx-1">&middot;</span>
-            <a className="underline hover:text-sakura-200" href="/cs">Help</a>
-            <span className="mx-1">&middot;</span>
-            <a className="underline hover:text-sakura-200" href="/contact">Contact</a>
-            <span className="mx-1">&middot;</span>
-            <a className="text-sakura-300 underline" href="https://vocavision.app">VocaVision</a>
-            <span className="mx-1">&middot;</span>
-            <a className="text-sakura-300 underline" href="https://hangeulvision.app">HangeulVision</a>
-          </p>
-        </footer>
+        <Footer />
       </body>
     </html>
   );
