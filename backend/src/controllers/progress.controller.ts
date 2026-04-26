@@ -33,18 +33,34 @@ export async function grade(req: AuthenticatedRequest, res: Response) {
   const { quality } = gradeSchema.parse(req.body);
   const { wordId } = req.params;
 
-  const existing = await prisma.progress.findUnique({
-    where: { userId_wordId: { userId: req.userId!, wordId } },
-  });
-  const base = existing ?? { repetition: 0, interval: 0, easiness: 2.5 };
-  const next = review(base, quality);
+  if (!req.userId) return res.status(401).json({ error: "unauthenticated" });
+  if (!wordId) return res.status(400).json({ error: "wordId required" });
 
-  const saved = await prisma.progress.upsert({
-    where: { userId_wordId: { userId: req.userId!, wordId } },
-    update: { ...next },
-    create: { userId: req.userId!, wordId, ...next },
-  });
-  res.json({ progress: saved });
+  try {
+    const existing = await prisma.progress.findUnique({
+      where: { userId_wordId: { userId: req.userId, wordId } },
+    });
+    const base = existing ?? { repetition: 0, interval: 0, easiness: 2.5 };
+    const next = review(base, quality);
+
+    const data = {
+      repetition: next.repetition,
+      interval: next.interval,
+      easiness: next.easiness,
+      dueAt: next.dueAt,
+      lastReviewedAt: next.lastReviewedAt,
+    };
+
+    const saved = await prisma.progress.upsert({
+      where: { userId_wordId: { userId: req.userId, wordId } },
+      update: data,
+      create: { userId: req.userId, wordId, ...data },
+    });
+    res.json({ progress: saved });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: "grade failed", detail: msg });
+  }
 }
 
 export async function remove(req: AuthenticatedRequest, res: Response) {
