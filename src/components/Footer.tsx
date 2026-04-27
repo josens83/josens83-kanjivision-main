@@ -2,7 +2,11 @@
 
 import { usePathname } from "next/navigation";
 
-const HIDE_FOOTER_PREFIXES = ["/learn", "/quiz", "/chat", "/study", "/review"];
+const HIDE_FOOTER_PREFIXES = [
+  "/learn", "/quiz", "/chat", "/study", "/review",
+  "/achievements", "/league", "/bookmarks", "/decks",
+  "/collections", "/notifications", "/admin", "/dashboard",
+];
 
 export function Footer() {
   const pathname = usePathname();
