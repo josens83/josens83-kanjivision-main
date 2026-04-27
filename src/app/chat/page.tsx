@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { apiPost } from "@/lib/api";
 
 interface Msg { role: "user" | "assistant"; content: string }
@@ -38,7 +39,11 @@ export default function ChatPage() {
         )}
         {messages.map((m, i) => (
           <div key={i} className={`rounded-xl px-4 py-3 text-sm max-w-[80%] ${m.role === "user" ? "ml-auto bg-sakura-500/20 text-ink-50" : "mr-auto bg-ink-800 text-ink-100"}`}>
-            {m.content}
+            {m.role === "assistant" ? (
+              <div className="prose prose-sm prose-invert max-w-none [&>p]:mb-2 [&>ul]:mb-2 [&>ol]:mb-2 [&_strong]:text-sakura-200 [&_li]:ml-4">
+                <ReactMarkdown>{m.content}</ReactMarkdown>
+              </div>
+            ) : m.content}
           </div>
         ))}
         {loading && <div className="mr-auto rounded-xl bg-ink-800 px-4 py-3 text-sm text-ink-400">Thinking...</div>}
