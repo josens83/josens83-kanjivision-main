@@ -37,6 +37,11 @@ export default function MySubscriptionPage() {
           <Link href="/settings" className="btn-ghost flex-1 text-center">Settings</Link>
         </div>
       </div>
+      <div className="card">
+        <h2 className="font-bold">Level Packs</h2>
+        <p className="text-sm text-ink-400 mt-1">One-time level packs you&apos;ve purchased.</p>
+        <Link href="/packages" className="btn-ghost mt-3 !text-xs">Browse packs &rarr;</Link>
+      </div>
       <div className="card"><h2 className="font-bold">Billing history</h2><p className="text-sm text-ink-400 mt-1">Payment history will appear here once you subscribe.</p></div>
     </div>
   );

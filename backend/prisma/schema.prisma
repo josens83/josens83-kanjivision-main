@@ -91,6 +91,7 @@ model User {
   leagues        LeagueMembership[]
   decks          Deck[]
   replies        Reply[]
+  purchases      UserPurchase[]
 
   @@index([email])
 }
@@ -113,10 +114,11 @@ model Word {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  kanjiParts     KanjiPart[]
-  progress       Progress[]
-  mnemonicImages MnemonicImage[]
-  bookmarks      Bookmark[]
+  kanjiParts      KanjiPart[]
+  progress        Progress[]
+  mnemonicImages  MnemonicImage[]
+  bookmarks       Bookmark[]
+  productPackages ProductPackageWord[]
 
   @@index([examCategory])
   @@index([tierRequired])
@@ -359,6 +361,61 @@ model SupportTicket {
 
   @@index([userId])
   @@index([status])
+}
+
+// ---------- Product Packages (Standalone Packs) ----------
+
+model ProductPackage {
+  id              String   @id @default(cuid())
+  name            String
+  nameEn          String?
+  slug            String   @unique
+  description     String?
+  descriptionEn   String?
+  shortDesc       String?
+  shortDescEn     String?
+  price           Int      @default(0)
+  priceGlobal     Decimal? @db.Decimal(10, 2)
+  originalPrice   Int?
+  durationDays    Int      @default(180)
+  badge           String?
+  badgeColor      String?
+  imageUrl        String?
+  isActive        Boolean  @default(true)
+  isComingSoon    Boolean  @default(false)
+  displayOrder    Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  words           ProductPackageWord[]
+  purchases       UserPurchase[]
+}
+
+model ProductPackageWord {
+  id           String         @id @default(cuid())
+  packageId    String
+  wordId       String
+  displayOrder Int            @default(0)
+
+  package      ProductPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  word         Word           @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([packageId, wordId])
+}
+
+model UserPurchase {
+  id        String         @id @default(cuid())
+  userId    String
+  packageId String
+  amount    Int            @default(0)
+  status    String         @default("ACTIVE")
+  expiresAt DateTime?
+  createdAt DateTime       @default(now())
+
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  package   ProductPackage @relation(fields: [packageId], references: [id])
+
+  @@index([userId])
 }
 
 // ---------- Billing ----------

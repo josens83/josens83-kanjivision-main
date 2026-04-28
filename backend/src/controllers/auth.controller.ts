@@ -93,9 +93,19 @@ export async function login(req: Request, res: Response) {
 
 export async function me(req: AuthenticatedRequest, res: Response) {
   if (!req.userId) return res.status(401).json({ error: "unauthenticated" });
-  const user = await prisma.user.findUnique({ where: { id: req.userId } });
+  const user = await prisma.user.findUnique({
+    where: { id: req.userId },
+    include: {
+      purchases: {
+        where: { status: "ACTIVE" },
+        include: { package: { select: { slug: true, name: true, nameEn: true, durationDays: true } } },
+      },
+    },
+  });
   if (!user) return res.status(404).json({ error: "user not found" });
-  res.json({ user: serializeUser(user) });
+  const { passwordHash: _pw, ...safe } = user;
+  void _pw;
+  res.json({ user: safe });
 }
 
 export async function refresh(req: Request, res: Response) {
