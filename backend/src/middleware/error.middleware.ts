@@ -62,5 +62,5 @@ export function errorHandler(
 
   logger.error({ err }, "unhandled error");
   const message = err instanceof Error ? err.message : "internal error";
-  res.status(500).json({ error: message });
+  res.status(500).json({ error: message, code: "INTERNAL_ERROR" });
 }

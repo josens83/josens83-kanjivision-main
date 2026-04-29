@@ -75,7 +75,18 @@ if (process.env.CORS_ORIGIN) {
   }
 }
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.paddle.com"],
+      frameSrc: ["'self'", "https://checkout.paddle.com", "https://accounts.google.com"],
+      connectSrc: ["'self'", "https://api.paddle.com", "https://cdn.paddle.com"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+    },
+  },
+}));
 app.use(compression({ level: 6, threshold: 1024 }));
 app.use(rateLimiter);
 app.use(cors({ origin: origins, credentials: true }));
