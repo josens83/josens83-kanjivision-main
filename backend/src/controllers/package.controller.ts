@@ -11,7 +11,7 @@ export async function listPackages(_req: Request, res: Response) {
       priceGlobal: true, originalPrice: true, durationDays: true,
       badge: true, badgeColor: true, imageUrl: true,
       isComingSoon: true, displayOrder: true,
-      paddlePriceId: true, paddleProductId: true,
+      exam: true, paddlePriceId: true, paddleProductId: true,
       _count: { select: { words: true } },
     },
   });

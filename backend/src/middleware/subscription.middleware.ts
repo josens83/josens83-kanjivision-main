@@ -5,7 +5,7 @@ import type { AuthenticatedRequest } from "./auth.middleware";
 
 const ACCESS_MAP: Record<string, ExamCategory[]> = {
   FREE: [ExamCategory.JLPT_N5],
-  BASIC: [ExamCategory.JLPT_N5, ExamCategory.JLPT_N4],
+  BASIC: [ExamCategory.JLPT_N5, ExamCategory.JLPT_N4, ExamCategory.JLPT_N3],
   PREMIUM: [
     ExamCategory.JLPT_N5, ExamCategory.JLPT_N4, ExamCategory.JLPT_N3,
     ExamCategory.JLPT_N2, ExamCategory.JLPT_N1,

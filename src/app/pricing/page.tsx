@@ -22,8 +22,8 @@ const PLANS = [
     name: "Basic",
     monthly: "$4.99",
     yearly: "$49.99",
-    levels: "N5 + N4",
-    features: ["Everything in Free", "1,500 N4 words", "Daily listening drills", "Quiz mode"],
+    levels: "N5 + N4 + N3",
+    features: ["Everything in Free", "N4 — 1,500 words", "N3 — 3,750 words", "Quiz mode"],
     highlight: false,
   },
   {

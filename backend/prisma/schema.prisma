@@ -374,6 +374,7 @@ model ProductPackage {
   descriptionEn   String?
   shortDesc       String?
   shortDescEn     String?
+  exam            String?
   price           Int      @default(0)
   priceGlobal     Decimal? @db.Decimal(10, 2)
   originalPrice   Int?
