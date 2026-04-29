@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { review } from "../utils/srs";
 import { computeStreak } from "../utils/streak";
+import { createNotification } from "../services/notification.service";
 
 const gradeSchema = z.object({
   quality: z.number().int().min(0).max(5),
@@ -56,6 +57,10 @@ export async function grade(req: AuthenticatedRequest, res: Response) {
       update: data,
       create: { userId: req.userId, wordId, ...data },
     });
+
+    // Check streak milestones (fire-and-forget)
+    checkStreakMilestones(req.userId).catch(() => {});
+
     res.json({ progress: saved });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -92,4 +97,24 @@ export async function stats(req: AuthenticatedRequest, res: Response) {
     longestStreakDays: streak.longestStreakDays,
     lastStudyDate: streak.lastStudyDate,
   });
+}
+
+const STREAK_MILESTONES = [7, 14, 30, 60, 100, 365];
+
+async function checkStreakMilestones(userId: string) {
+  const rows = await prisma.progress.findMany({
+    where: { userId },
+    select: { lastReviewedAt: true },
+  });
+  const reviewed = rows.map((r) => r.lastReviewedAt).filter((d): d is Date => !!d);
+  const { streakDays } = computeStreak(reviewed);
+
+  if (STREAK_MILESTONES.includes(streakDays)) {
+    const existing = await prisma.notification.findFirst({
+      where: { userId, type: "LEARNING", title: { contains: `${streakDays}-day streak` } },
+    });
+    if (!existing) {
+      await createNotification(userId, "LEARNING", `${streakDays}-day streak!`, `You've studied ${streakDays} days in a row. Keep it up!`);
+    }
+  }
 }

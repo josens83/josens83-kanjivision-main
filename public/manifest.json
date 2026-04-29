@@ -1,12 +1,14 @@
 {
-  "name": "KanjiVision AI",
+  "name": "KanjiVision AI — Learn JLPT Vocabulary",
   "short_name": "KanjiVision",
-  "description": "Japanese, Visualized. JLPT N5~N1 vocabulary learning with AI-generated mnemonics.",
-  "start_url": "/",
+  "description": "Japanese, Visualized. JLPT N5~N1 vocabulary learning with AI-generated mnemonics, kanji decomposition, and spaced repetition.",
+  "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0d1018",
   "theme_color": "#ef4361",
   "orientation": "portrait",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/icon.svg",
@@ -15,6 +17,13 @@
       "purpose": "any maskable"
     }
   ],
+  "screenshots": [],
   "categories": ["education", "productivity"],
-  "lang": "en"
+  "lang": "en",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    { "name": "Learn", "url": "/learn", "description": "Start a study session" },
+    { "name": "Quiz", "url": "/quiz", "description": "Test your knowledge" },
+    { "name": "Dashboard", "url": "/dashboard", "description": "View your progress" }
+  ]
 }
