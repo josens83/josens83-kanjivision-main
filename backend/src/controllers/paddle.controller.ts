@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
+import { sendPurchaseReceipt, sendSubscriptionWelcome } from "../services/email.service";
 
 const PRICE_MAP: Record<string, string | undefined> = {
   basic_monthly: process.env.PADDLE_PRICE_ID_BASIC_MONTHLY,
@@ -116,6 +117,11 @@ export async function webhook(req: Request, res: Response) {
         },
       }).catch(() => {});
       logger.info({ userId, slug: pkg.slug }, "package purchased");
+      const buyer = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, displayName: true } });
+      if (buyer) {
+        const expires = new Date(Date.now() + pkg.durationDays * 86400000);
+        sendPurchaseReceipt(buyer.email, buyer.displayName, pkg.nameEn ?? pkg.name, `$${pkg.priceGlobal ?? (pkg.price / 100).toFixed(2)}`, data.id ?? "", expires.toLocaleDateString()).catch(() => {});
+      }
     }
     return res.json({ received: true });
   }
@@ -124,6 +130,7 @@ export async function webhook(req: Request, res: Response) {
     case "subscription.activated":
     case "subscription.updated": {
       const endsAt = data.current_billing_period?.ends_at;
+      const tierLabel = plan === "premium" ? "Premium" : "Basic";
       await prisma.user.update({
         where: { id: userId },
         data: {
@@ -135,6 +142,10 @@ export async function webhook(req: Request, res: Response) {
           autoRenewal: !data.scheduled_change,
         },
       });
+      if (eventType === "subscription.activated") {
+        const sub = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, displayName: true } });
+        if (sub) sendSubscriptionWelcome(sub.email, sub.displayName, tierLabel, billingCycle ?? "monthly", subscriptionPlan ?? "").catch(() => {});
+      }
       break;
     }
     case "subscription.canceled": {

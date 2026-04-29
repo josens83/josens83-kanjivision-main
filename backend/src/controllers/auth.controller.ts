@@ -76,6 +76,7 @@ export async function signup(req: Request, res: Response) {
     },
   });
   const tokens = issueTokens(user);
+  sendWelcomeEmail(user.email, user.displayName).catch(() => {});
   res.status(201).json({ user: serializeUser(user), ...tokens });
 }
 
@@ -240,6 +241,7 @@ export async function googleCallback(req: Request, res: Response) {
         googleId: info.id,
       },
     });
+    sendWelcomeEmail(user.email, user.displayName).catch(() => {});
   }
 
   // 4. JWT 발급 → 프론트엔드 콜백 페이지로 리다이렉트

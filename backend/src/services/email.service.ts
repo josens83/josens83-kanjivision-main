@@ -47,3 +47,34 @@ export async function sendGoalAchievedEmail(to: string, name: string | null, goa
     <p style="color:#888;font-size:12px">KanjiVision AI</p>
   `);
 }
+
+export async function sendPurchaseReceipt(
+  to: string, name: string | null, packageName: string,
+  amount: string, transactionId: string, expiresAt: string
+) {
+  await send(to, `Purchase confirmed — ${packageName}`, `
+    <h2>${name ?? "Hello"}, your purchase is confirmed!</h2>
+    <table style="border-collapse:collapse;margin:16px 0">
+      <tr><td style="padding:4px 12px;color:#888">Pack</td><td style="padding:4px 12px;font-weight:bold">${packageName}</td></tr>
+      <tr><td style="padding:4px 12px;color:#888">Amount</td><td style="padding:4px 12px">${amount}</td></tr>
+      <tr><td style="padding:4px 12px;color:#888">Transaction</td><td style="padding:4px 12px;font-size:12px">${transactionId}</td></tr>
+      <tr><td style="padding:4px 12px;color:#888">Access until</td><td style="padding:4px 12px">${expiresAt}</td></tr>
+    </table>
+    <p><a href="https://kanjivision.app/learn">Start learning →</a></p>
+    <p style="color:#888;font-size:12px">KanjiVision AI · Part of the Vision Platform</p>
+  `);
+}
+
+export async function sendSubscriptionWelcome(
+  to: string, name: string | null, tier: string, cycle: string, amount: string
+) {
+  await send(to, `Welcome to KanjiVision ${tier}!`, `
+    <h2>${name ?? "Hello"}, your ${tier} subscription is active!</h2>
+    <table style="border-collapse:collapse;margin:16px 0">
+      <tr><td style="padding:4px 12px;color:#888">Plan</td><td style="padding:4px 12px;font-weight:bold">${tier}</td></tr>
+      <tr><td style="padding:4px 12px;color:#888">Billing</td><td style="padding:4px 12px">${amount} / ${cycle}</td></tr>
+    </table>
+    <p><a href="https://kanjivision.app/learn">Start learning →</a></p>
+    <p style="color:#888;font-size:12px">KanjiVision AI</p>
+  `);
+}
