@@ -23,8 +23,22 @@ export default function PackageDetailPage() {
 
   if (!pkg) return <div className="mt-10 text-center text-ink-400">Loading...</div>;
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: pkg.nameEn ?? pkg.name,
+    description: pkg.descriptionEn ?? pkg.description ?? `${pkg.wordCount} JLPT vocabulary words`,
+    offers: {
+      "@type": "Offer",
+      price: pkg.priceGlobal ?? (pkg.price / 100).toFixed(2),
+      priceCurrency: "USD",
+      availability: pkg.isComingSoon ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
+    },
+  };
+
   return (
     <div className="mx-auto max-w-2xl py-6 flex flex-col gap-6">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
       <Link href="/packages" className="text-xs text-sakura-300 hover:underline">&larr; All Packs</Link>
       <div className="card">
         {pkg.badge && <span className="chip mb-2">{pkg.badge}</span>}

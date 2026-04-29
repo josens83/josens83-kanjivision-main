@@ -58,8 +58,31 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "KanjiVision AI",
+    description: "Master JLPT kanji through AI decomposition, mnemonics, and spaced repetition.",
+    applicationCategory: "EducationalApplication",
+    operatingSystem: "Web",
+    offers: {
+      "@type": "AggregateOffer",
+      lowPrice: "0",
+      highPrice: "7.99",
+      priceCurrency: "USD",
+    },
+    inLanguage: ["en", "ja", "ko"],
+  };
+
   return (
     <html lang="en">
+      <head>
+        <link rel="alternate" hrefLang="en" href="https://josens83-kanjivision-main.vercel.app" />
+        <link rel="alternate" hrefLang="ja" href="https://josens83-kanjivision-main.vercel.app" />
+        <link rel="alternate" hrefLang="ko" href="https://josens83-kanjivision-main.vercel.app" />
+        <link rel="alternate" hrefLang="x-default" href="https://josens83-kanjivision-main.vercel.app" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      </head>
       <body className="min-h-screen font-jp">
         <AuthBoot />
         <ServiceWorker />
