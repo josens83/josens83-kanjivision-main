@@ -62,7 +62,13 @@ interface PaddleWebhookBody {
   data?: {
     id?: string;
     status?: string;
-    custom_data?: { userId?: string; plan?: string; billingCycle?: string };
+    custom_data?: {
+      userId?: string;
+      plan?: string;
+      billingCycle?: string;
+      slug?: string;
+      type?: string;
+    };
     current_billing_period?: { ends_at?: string };
     scheduled_change?: { action?: string } | null;
   };
@@ -95,6 +101,24 @@ export async function webhook(req: Request, res: Response) {
   const plan = data.custom_data?.plan;
   const billingCycle = data.custom_data?.billingCycle;
   const subscriptionPlan = plan && billingCycle ? `${plan}_${billingCycle}` : null;
+
+  // Handle standalone pack purchase
+  if (eventType === "transaction.completed" && data.custom_data?.type === "package" && data.custom_data?.slug) {
+    const pkg = await prisma.productPackage.findUnique({ where: { slug: data.custom_data.slug } });
+    if (pkg) {
+      await prisma.userPurchase.create({
+        data: {
+          userId,
+          packageId: pkg.id,
+          amount: pkg.price,
+          status: "ACTIVE",
+          expiresAt: new Date(Date.now() + pkg.durationDays * 86400000),
+        },
+      }).catch(() => {});
+      logger.info({ userId, slug: pkg.slug }, "package purchased");
+    }
+    return res.json({ received: true });
+  }
 
   switch (eventType) {
     case "subscription.activated":

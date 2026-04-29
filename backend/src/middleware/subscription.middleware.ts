@@ -29,13 +29,30 @@ export async function checkContentAccess(
   const tier = user.tier ?? "FREE";
   const allowed = ACCESS_MAP[tier] ?? ACCESS_MAP.FREE;
 
-  if (user.subscriptionStatus === "CANCELLED" && user.subscriptionEnd) {
-    if (new Date() > user.subscriptionEnd) {
-      return allowed.includes(exam) ? null : `upgrade to access ${exam}`;
-    }
+  if (allowed.includes(exam)) return null;
+
+  // Check standalone pack purchases
+  const now = new Date();
+  const activePurchase = await prisma.userPurchase.findFirst({
+    where: {
+      userId,
+      status: "ACTIVE",
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    },
+    include: { package: { include: { words: { include: { word: true }, take: 1 } } } },
+  });
+  if (activePurchase) {
+    const purchasedExams = await prisma.word.findMany({
+      where: {
+        productPackages: { some: { packageId: activePurchase.packageId } },
+        examCategory: exam,
+      },
+      take: 1,
+    });
+    if (purchasedExams.length > 0) return null;
   }
 
-  return allowed.includes(exam) ? null : `upgrade to access ${exam}`;
+  return `upgrade to access ${exam}`;
 }
 
 export function requireContentAccess(examParam: string = "exam") {

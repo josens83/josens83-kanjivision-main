@@ -1,17 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { apiGet } from "@/lib/api";
+import { useAppStore } from "@/lib/store";
 
 interface KanjiPart { char: string; reading: string; meaning: string }
 interface WordItem { id: string; lemma: string; reading: string; meaning: string; kanjiParts: KanjiPart[] }
 interface PkgWord { word: WordItem; displayOrder: number }
-interface Pkg { name: string; nameEn: string | null; slug: string; description: string | null; descriptionEn: string | null; price: number; priceGlobal: string | null; durationDays: number; badge: string | null; isComingSoon: boolean; wordCount: number; words: PkgWord[] }
+interface Pkg { name: string; nameEn: string | null; slug: string; description: string | null; descriptionEn: string | null; price: number; priceGlobal: string | null; durationDays: number; badge: string | null; isComingSoon: boolean; wordCount: number; words: PkgWord[]; paddlePriceId: string | null }
 
 export default function PackageDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params?.slug as string;
+  const user = useAppStore((s) => s.user);
   const [pkg, setPkg] = useState<Pkg | null>(null);
 
   useEffect(() => {
@@ -33,8 +36,23 @@ export default function PackageDetailPage() {
         </div>
         {pkg.isComingSoon ? (
           <button className="btn-ghost mt-4 opacity-60" disabled>Coming Soon</button>
+        ) : !pkg.paddlePriceId ? (
+          <button className="btn-ghost mt-4 opacity-60" disabled>Price not set yet</button>
         ) : (
-          <button className="btn-primary mt-4">Purchase Pack</button>
+          <button className="btn-primary mt-4" onClick={() => {
+            if (!user) { router.push(`/signin?next=/packages/${slug}`); return; }
+            const Paddle = (window as any).Paddle;
+            if (Paddle?.Checkout) {
+              Paddle.Checkout.open({
+                items: [{ priceId: pkg.paddlePriceId, quantity: 1 }],
+                customer: { email: user.email },
+                customData: { service: "kv", slug: pkg.slug, type: "package", userId: user.id },
+                successCallback: () => router.push("/my"),
+              });
+            } else {
+              alert("Payment system loading. Please refresh and try again.");
+            }
+          }}>Purchase Pack</button>
         )}
       </div>
 

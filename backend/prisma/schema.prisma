@@ -384,6 +384,8 @@ model ProductPackage {
   isActive        Boolean  @default(true)
   isComingSoon    Boolean  @default(false)
   displayOrder    Int      @default(0)
+  paddlePriceId   String?
+  paddleProductId String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
