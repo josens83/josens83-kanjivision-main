@@ -1,10 +1,10 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiGet } from "@/lib/api";
 
-interface WordItem { id: string; lemma: string; reading: string; meaning: string; examCategory: string; mnemonicImages?: Array<{ url: string }> }
+interface WordItem { id: string; lemma: string; reading: string; meaning: string; examCategory: string; partOfSpeech?: string; mnemonicImages?: Array<{ url: string }> }
 interface ListRes { count: number; total: number; nextCursor: string | null; data: WordItem[] }
 
 export default function LevelBrowsePage() {
@@ -15,6 +15,7 @@ export default function LevelBrowsePage() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const load = useCallback(async (c?: string | null) => {
     setLoading(true);
@@ -32,17 +33,24 @@ export default function LevelBrowsePage() {
 
   useEffect(() => { load(); }, [load]);
 
+  function onSearchChange(val: string) {
+    setSearch(val);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => load(), 300);
+  }
+
   return (
     <div className="flex flex-col gap-4 py-4">
       <header>
-        <Link href="/vocabulary" className="text-xs text-sakura-300 hover:underline">&larr; All levels</Link>
+        <Link href="/vocabulary" className="text-xs text-sakura-300 hover:underline" aria-label="Back to all levels">&larr; All levels</Link>
         <h1 className="text-2xl font-black">{level.replace("_", " ")}</h1>
         <p className="text-sm text-ink-400">{total} words</p>
       </header>
       <div className="flex gap-2">
         <input className="flex-1 rounded-xl border border-ink-400/30 bg-ink-800 px-4 py-2 text-sm outline-none focus:border-sakura-500"
-          placeholder="Search word or meaning..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && load()} />
-        <button className="btn-ghost !py-2 !text-xs" onClick={() => load()}>Search</button>
+          placeholder="Search word or meaning..." value={search} onChange={(e) => onSearchChange(e.target.value)}
+          aria-label="Search vocabulary" />
+        <button className="btn-ghost !py-2 !text-xs" onClick={() => load()} aria-label="Submit search">Search</button>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {words.map((w) => (

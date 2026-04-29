@@ -56,6 +56,7 @@ import sessionRoutes from "./routes/session.routes";
 import supportRoutes from "./routes/support.routes";
 import subscriptionRoutes from "./routes/subscription.routes";
 import userRoutes from "./routes/user.routes";
+import recommendRoutes from "./routes/recommend.routes";
 import wordRoutes from "./routes/word.routes";
 
 process.stdout.write("[boot] all route modules loaded\n");
@@ -125,6 +126,7 @@ app.use("/api/admin/monitoring", monitoringRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/internal", internalRoutes);
 app.use("/api/league", leagueRoutes);
+app.use("/api/recommend", recommendRoutes);
 
 // --- 404 + error ---
 app.use(notFound);

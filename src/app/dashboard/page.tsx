@@ -17,6 +17,21 @@ interface ProgressStats {
   lastStudyDate: string | null;
 }
 
+interface RecommendWord {
+  id: string;
+  lemma: string;
+  reading: string;
+  meaning: string;
+  examCategory: string;
+}
+
+interface Recommendations {
+  due: RecommendWord[];
+  byCategory: RecommendWord[];
+  byKanji: RecommendWord[];
+  topCategory: string | null;
+}
+
 export default function DashboardPage() {
   const user = useAppStore((s) => s.user);
   const hydrating = useAppStore((s) => s.hydrating);
@@ -27,11 +42,16 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [fallback, setFallback] = useState(false);
   const [goal, setGoal] = useState<{ dailyGoal: number; dailyProgress: number } | null>(null);
+  const [recs, setRecs] = useState<Recommendations | null>(null);
 
   useEffect(() => {
     if (!user) return;
     let alive = true;
     setLoading(true);
+    apiGet<Recommendations>("/api/recommend/next-words").then((res) => {
+      if (!alive) return;
+      if (res.ok && res.data) setRecs(res.data);
+    });
     apiGet<ProgressStats>("/api/progress/stats").then((res) => {
       if (!alive) return;
       if (res.ok && res.data) {
@@ -149,6 +169,38 @@ export default function DashboardPage() {
               <div className="text-xs text-ink-400">Cards reviewed today</div>
             </div>
           </div>
+        </section>
+      )}
+
+      {recs && (recs.due.length > 0 || recs.byCategory.length > 0 || recs.byKanji.length > 0) && (
+        <section className="card">
+          <h2 className="font-bold mb-3">Recommended for you</h2>
+          {recs.due.length > 0 && (
+            <div className="mb-3">
+              <div className="text-xs text-ink-400 uppercase tracking-widest mb-1">Due for review</div>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {recs.due.map((w) => (
+                  <Link key={w.id} href={`/words/${w.id}`} className="shrink-0 rounded-lg border border-ink-400/15 bg-ink-900/40 px-3 py-2 hover:border-sakura-500/40 transition">
+                    <ruby className="text-sm font-bold">{w.lemma}<rt className="text-[0.6rem]">{w.reading}</rt></ruby>
+                    <div className="text-[0.65rem] text-ink-400">{w.meaning}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+          {recs.byKanji.length > 0 && (
+            <div>
+              <div className="text-xs text-ink-400 uppercase tracking-widest mb-1">Words with similar kanji</div>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {recs.byKanji.map((w) => (
+                  <Link key={w.id} href={`/words/${w.id}`} className="shrink-0 rounded-lg border border-ink-400/15 bg-ink-900/40 px-3 py-2 hover:border-sakura-500/40 transition">
+                    <ruby className="text-sm font-bold">{w.lemma}<rt className="text-[0.6rem]">{w.reading}</rt></ruby>
+                    <div className="text-[0.65rem] text-ink-400">{w.meaning}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       )}
 
