@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { sendPurchaseReceipt, sendSubscriptionWelcome, sendPaymentFailedEmail } from "../services/email.service";
+import { createNotification } from "../services/notification.service";
 
 const PRICE_MAP: Record<string, string | undefined> = {
   basic_monthly: process.env.PADDLE_PRICE_ID_BASIC_MONTHLY,
@@ -117,6 +118,7 @@ export async function webhook(req: Request, res: Response) {
         },
       }).catch(() => {});
       logger.info({ userId, slug: pkg.slug }, "package purchased");
+      createNotification(userId, "PAYMENT", "Purchase confirmed", `Your ${pkg.nameEn ?? pkg.name} pack is now active.`).catch(() => {});
       const buyer = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, displayName: true } });
       if (buyer) {
         const expires = new Date(Date.now() + pkg.durationDays * 86400000);
@@ -143,6 +145,7 @@ export async function webhook(req: Request, res: Response) {
         },
       });
       if (eventType === "subscription.activated") {
+        createNotification(userId, "PAYMENT", `${tierLabel} subscription activated`, `Welcome to KanjiVision ${tierLabel}!`).catch(() => {});
         const sub = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, displayName: true } });
         if (sub) sendSubscriptionWelcome(sub.email, sub.displayName, tierLabel, billingCycle ?? "monthly", subscriptionPlan ?? "").catch(() => {});
       }
@@ -186,6 +189,7 @@ export async function webhook(req: Request, res: Response) {
       break;
     }
     case "transaction.payment_failed": {
+      createNotification(userId, "PAYMENT", "Payment failed", "Your payment could not be processed. Please update your payment method.").catch(() => {});
       const failedUser = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, displayName: true } });
       if (failedUser) sendPaymentFailedEmail(failedUser.email, failedUser.displayName).catch(() => {});
       break;

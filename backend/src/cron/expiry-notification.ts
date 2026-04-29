@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
 import { sendExpiryNotification } from "../services/email.service";
+import { createNotification } from "../services/notification.service";
 
 export async function checkExpiringPurchases(): Promise<number> {
   const now = new Date();
@@ -29,6 +30,7 @@ export async function checkExpiringPurchases(): Promise<number> {
         7,
         purchase.package.slug,
       );
+      await createNotification(purchase.userId, "PAYMENT", `${pkgName} expires in 7 days`, `Your ${pkgName} pack access expires soon. Renew to keep learning.`);
       sent++;
     } catch {
       logger.error({ userId: purchase.userId, slug: purchase.package.slug }, "expiry email failed");
