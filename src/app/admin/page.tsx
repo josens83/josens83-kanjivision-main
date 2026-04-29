@@ -345,6 +345,35 @@ function AdminInner() {
             </div>
             {quickMsg && <div className="mt-2 text-xs text-sakura-300">{quickMsg}</div>}
           </section>
+
+          {/* Broadcast Notification */}
+          <section className="card">
+            <h2 className="font-bold">Broadcast Notification</h2>
+            <p className="mt-1 text-sm text-ink-400">Send a notification to all users.</p>
+            <form className="mt-3 flex flex-col gap-2" onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.target as HTMLFormElement;
+              const title = (form.elements.namedItem("bc-title") as HTMLInputElement).value;
+              const message = (form.elements.namedItem("bc-message") as HTMLTextAreaElement).value;
+              if (!title || !message) return;
+              setQuickRunning(true);
+              setQuickMsg("Broadcasting...");
+              try {
+                const res = await fetch(`${API_URL}/api/internal/broadcast?key=${ADMIN_KEY}`, {
+                  method: "POST", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ title, message, type: "ANNOUNCEMENT" }),
+                });
+                const data = await res.json();
+                setQuickMsg(`Broadcast: sent to ${data.created ?? 0} users`);
+                form.reset();
+              } catch { setQuickMsg("Broadcast failed"); }
+              setQuickRunning(false);
+            }}>
+              <input name="bc-title" className="rounded-lg border border-ink-400/30 bg-ink-800 px-3 py-2 text-sm outline-none focus:border-sakura-500" placeholder="Notification title" required />
+              <textarea name="bc-message" className="rounded-lg border border-ink-400/30 bg-ink-800 px-3 py-2 text-sm outline-none focus:border-sakura-500 h-20 resize-none" placeholder="Message..." required />
+              <button type="submit" className="btn-primary !py-2 w-fit" disabled={quickRunning}>Send to all users</button>
+            </form>
+          </section>
         </>
       )}
 

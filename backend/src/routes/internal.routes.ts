@@ -36,4 +36,26 @@ router.get("/subscribers", async (_req, res) => {
   res.json({ subscribers });
 });
 
+// Broadcast notification to all users
+router.post("/broadcast", async (req, res) => {
+  const { title, message, type } = req.body as { title?: string; message?: string; type?: string };
+  if (!title || !message) return res.status(400).json({ error: "title and message required" });
+  const users = await prisma.user.findMany({ select: { id: true } });
+  let created = 0;
+  for (const u of users) {
+    await prisma.notification.create({
+      data: { userId: u.id, type: type ?? "ANNOUNCEMENT", title, message },
+    }).catch(() => {});
+    created++;
+  }
+  res.json({ ok: true, created, total: users.length });
+});
+
+// Content gaps (levels below target)
+router.get("/content-gaps", async (_req, res) => {
+  const { getContentGaps } = await import("../cron/content-stats");
+  const gaps = await getContentGaps();
+  res.json({ gaps });
+});
+
 export default router;
