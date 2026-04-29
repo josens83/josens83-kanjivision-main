@@ -209,3 +209,54 @@ export async function getSubscription(req: AuthenticatedRequest, res: Response) 
   if (!user) return res.status(404).json({ error: "not found" });
   res.json(user);
 }
+
+export async function cancelSubscription(req: AuthenticatedRequest, res: Response) {
+  const user = await prisma.user.findUnique({ where: { id: req.userId! } });
+  if (!user) return res.status(404).json({ error: "not found" });
+  if (!user.paddleSubscriptionId) return res.status(400).json({ error: "no active subscription" });
+
+  if (process.env.PADDLE_API_KEY) {
+    const cancelRes = await fetch(
+      `https://api.paddle.com/subscriptions/${user.paddleSubscriptionId}/cancel`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.PADDLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ effective_from: "next_billing_period" }),
+      }
+    );
+    if (!cancelRes.ok) {
+      const err = await cancelRes.text();
+      logger.error({ err, subscriptionId: user.paddleSubscriptionId }, "paddle cancel failed");
+      return res.status(502).json({ error: "cancel failed" });
+    }
+  }
+
+  await prisma.user.update({
+    where: { id: req.userId! },
+    data: { autoRenewal: false },
+  });
+  res.json({ ok: true, message: "Subscription will end at current billing period" });
+}
+
+export async function billingHistory(req: AuthenticatedRequest, res: Response) {
+  const purchases = await prisma.userPurchase.findMany({
+    where: { userId: req.userId! },
+    orderBy: { createdAt: "desc" },
+    include: { package: { select: { name: true, nameEn: true, slug: true } } },
+    take: 50,
+  });
+  res.json({
+    purchases: purchases.map((p) => ({
+      id: p.id,
+      packageName: p.package.nameEn ?? p.package.name,
+      slug: p.package.slug,
+      amount: p.amount,
+      status: p.status,
+      expiresAt: p.expiresAt,
+      createdAt: p.createdAt,
+    })),
+  });
+}
