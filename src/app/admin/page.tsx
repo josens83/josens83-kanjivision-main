@@ -61,6 +61,8 @@ function AdminInner() {
   const [pkgs, setPkgs] = useState<AdminPkg[]>([]);
   const [pkgLoading, setPkgLoading] = useState(false);
   const [pkgSaving, setPkgSaving] = useState<string | null>(null);
+  const [quickMsg, setQuickMsg] = useState<string | null>(null);
+  const [quickRunning, setQuickRunning] = useState(false);
 
   useEffect(() => {
     if (key === ADMIN_KEY) setAuthed(true);
@@ -100,6 +102,17 @@ function AdminInner() {
       }
     } catch { /* silent */ }
     setPkgSaving(null);
+  }
+
+  async function runQuickAction(label: string, url: string) {
+    setQuickRunning(true);
+    setQuickMsg(`Running: ${label}...`);
+    try {
+      const res = await fetch(`${API_URL}${url}`);
+      const data = await res.json();
+      setQuickMsg(`${label}: ${data.created ?? data.count ?? data.ok ?? "done"}`);
+    } catch { setQuickMsg(`${label}: failed`); }
+    setQuickRunning(false);
   }
 
   async function handleGenerate() {
@@ -280,6 +293,39 @@ function AdminInner() {
                 )}
               </div>
             )}
+          </section>
+
+          {/* Quick Actions */}
+          <section className="card">
+            <h2 className="font-bold">Quick Actions</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button className="btn-ghost !text-xs !py-1.5" disabled={quickRunning}
+                onClick={() => runQuickAction("Generate 10 N4 words", `/api/internal/generate-words?key=${ADMIN_KEY}&exam=JLPT_N4&count=10`)}>
+                N4 +10 words
+              </button>
+              <button className="btn-ghost !text-xs !py-1.5" disabled={quickRunning}
+                onClick={() => runQuickAction("Generate 10 N3 words", `/api/internal/generate-words?key=${ADMIN_KEY}&exam=JLPT_N3&count=10`)}>
+                N3 +10 words
+              </button>
+              <button className="btn-ghost !text-xs !py-1.5" disabled={quickRunning}
+                onClick={() => runQuickAction("Generate 5 N5 images", `/api/internal/generate-images?key=${ADMIN_KEY}&exam=JLPT_N5&count=5`)}>
+                N5 +5 images
+              </button>
+              <button className="btn-ghost !text-xs !py-1.5" disabled={quickRunning}
+                onClick={() => runQuickAction("Generate 5 N4 images", `/api/internal/generate-images?key=${ADMIN_KEY}&exam=JLPT_N4&count=5`)}>
+                N4 +5 images
+              </button>
+              <Link href={`/admin/monitoring?key=${ADMIN_KEY}`} className="btn-ghost !text-xs !py-1.5">
+                System Monitor &rarr;
+              </Link>
+              <Link href={`/admin/cs?key=${ADMIN_KEY}`} className="btn-ghost !text-xs !py-1.5">
+                CS Tickets &rarr;
+              </Link>
+              <Link href={`/admin/images?key=${ADMIN_KEY}`} className="btn-ghost !text-xs !py-1.5">
+                Image Manager &rarr;
+              </Link>
+            </div>
+            {quickMsg && <div className="mt-2 text-xs text-sakura-300">{quickMsg}</div>}
           </section>
         </>
       )}

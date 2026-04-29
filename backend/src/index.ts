@@ -25,6 +25,7 @@ import { rateLimiter } from "./middleware/rateLimiter.middleware";
 import { logger } from "./lib/logger";
 import { prisma, disconnectPrisma } from "./lib/prisma";
 import { checkExpiringPurchases } from "./cron/expiry-notification";
+import { collectContentStats } from "./cron/content-stats";
 
 process.stdout.write("[boot] middleware + logger + prisma module loaded\n");
 
@@ -147,7 +148,11 @@ const server = app.listen(PORT, "0.0.0.0", () => {
   // Run once 30s after boot
   setTimeout(() => {
     checkExpiringPurchases().catch((err) => logger.error({ err }, "expiry cron initial run failed"));
+    collectContentStats().catch((err) => logger.error({ err }, "content stats initial run failed"));
   }, 30_000);
+  setInterval(() => {
+    collectContentStats().catch((err) => logger.error({ err }, "content stats cron failed"));
+  }, DAY_MS);
 });
 
 // --- Graceful shutdown ---
