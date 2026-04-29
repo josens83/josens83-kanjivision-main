@@ -6,6 +6,7 @@ import {
   generateWordsGet,
   generateImagesGet,
 } from "../controllers/internal.controller";
+import { listAllPackages, updatePackage } from "../controllers/package.controller";
 import { requireInternalKey } from "../middleware/internal.middleware";
 
 const router = Router();
@@ -16,10 +17,12 @@ router.post("/generate-words", generateWords);
 router.post("/generate-words-batch", generateWordsBatch);
 
 // Browser-friendly (query params, ?key=…)
-// e.g. GET /api/internal/generate-words?key=XXX&exam=JLPT_N5&count=10&category=food
-// e.g. GET /api/internal/generate-words-batch?key=XXX&exam=JLPT_N5&batchSize=10&totalTarget=50
 router.get("/generate-words", generateWordsGet);
 router.get("/generate-words-batch", generateWordsBatchGet);
 router.get("/generate-images", generateImagesGet);
+
+// Admin package management
+router.get("/packages", listAllPackages);
+router.patch("/packages/:id", updatePackage);
 
 export default router;

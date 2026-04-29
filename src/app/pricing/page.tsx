@@ -1,12 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Script from "next/script";
 import Link from "next/link";
 import clsx from "clsx";
 import { useAppStore } from "@/lib/store";
-import { apiPost, API_URL } from "@/lib/api";
+import { apiGet, apiPost, API_URL } from "@/lib/api";
 import { useRouter } from "next/navigation";
+
+interface StandalonePkg {
+  id: string;
+  name: string;
+  nameEn: string | null;
+  slug: string;
+  shortDesc: string | null;
+  price: number;
+  priceGlobal: string | null;
+  durationDays: number;
+  badge: string | null;
+  badgeColor: string | null;
+  isComingSoon: boolean;
+  wordCount: number;
+}
 
 const PLANS = [
   {
@@ -42,6 +57,13 @@ export default function PricingPage() {
   const router = useRouter();
   const [yearly, setYearly] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
+  const [packs, setPacks] = useState<StandalonePkg[]>([]);
+
+  useEffect(() => {
+    apiGet<{ packages: StandalonePkg[] }>("/api/packages").then((r) => {
+      if (r.ok && r.data) setPacks(r.data.packages.filter((p) => !p.isComingSoon));
+    });
+  }, []);
 
   async function handleSubscribe(plan: string) {
     if (!user) {
@@ -145,6 +167,49 @@ export default function PricingPage() {
           </div>
         ))}
       </section>
+
+      {packs.length > 0 && (
+        <section>
+          <div className="mb-4 text-center">
+            <h2 className="text-xl font-bold">Or buy individual packs</h2>
+            <p className="mt-1 text-sm text-ink-400">
+              One-time purchase. No subscription required.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {packs.map((p) => (
+              <Link
+                key={p.id}
+                href={`/packages/${p.slug}`}
+                className="card flex flex-col gap-2 transition hover:border-sakura-500/50"
+              >
+                {p.badge && (
+                  <span
+                    className="chip w-fit text-[0.65rem]"
+                    style={{ borderColor: p.badgeColor ?? undefined, color: p.badgeColor ?? undefined }}
+                  >
+                    {p.badge}
+                  </span>
+                )}
+                <h3 className="font-bold">{p.nameEn ?? p.name}</h3>
+                {p.shortDesc && <p className="text-xs text-ink-400">{p.shortDesc}</p>}
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-black text-sakura-300">
+                    ${p.priceGlobal ?? (p.price / 100).toFixed(2)}
+                  </span>
+                  <span className="text-xs text-ink-400">{p.durationDays} days</span>
+                </div>
+                <div className="text-xs text-ink-400">{p.wordCount} words</div>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-4 text-center">
+            <Link href="/packages" className="text-sm text-sakura-300 hover:underline">
+              Browse all packs &rarr;
+            </Link>
+          </div>
+        </section>
+      )}
 
       <section className="card">
         <h3 className="font-bold">Vision Platform bundles</h3>
