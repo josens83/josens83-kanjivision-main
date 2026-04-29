@@ -13,6 +13,10 @@ interface WordDetail {
   collocations: string[] | null; kanjiParts: KanjiPart[];
   mnemonicImages?: Array<{ url: string }>;
 }
+interface RelatedWord {
+  id: string; lemma: string; reading: string; meaning: string;
+  kanjiParts: { char: string }[];
+}
 
 export default function WordDetailPage() {
   const params = useParams();
@@ -20,9 +24,11 @@ export default function WordDetailPage() {
   const user = useAppStore((s) => s.user);
   const [word, setWord] = useState<WordDetail | null>(null);
   const [bookmarked, setBookmarked] = useState(false);
+  const [related, setRelated] = useState<RelatedWord[]>([]);
 
   useEffect(() => {
     apiGet<{ word: WordDetail }>(`/api/words/${id}`).then((r) => { if (r.ok && r.data) setWord(r.data.word); });
+    apiGet<{ data: RelatedWord[] }>(`/api/words/${id}/related`).then((r) => { if (r.ok && r.data) setRelated(r.data.data); });
     if (user) apiGet<{ bookmarked: boolean }>(`/api/bookmarks/${id}`).then((r) => { if (r.ok && r.data) setBookmarked(r.data.bookmarked); });
   }, [id, user]);
 
@@ -85,6 +91,30 @@ export default function WordDetailPage() {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {word.collocations && word.collocations.length > 0 && (
+        <section className="card">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-400 mb-2">Collocations</h3>
+          <div className="flex flex-wrap gap-2">
+            {word.collocations.map((c, i) => <span key={i} className="chip text-xs">{c}</span>)}
+          </div>
+        </section>
+      )}
+
+      {related.length > 0 && (
+        <section className="card">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-400 mb-3">Related words (shared kanji)</h3>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {related.map((r) => (
+              <Link key={r.id} href={`/words/${r.id}`} className="rounded-xl border border-ink-400/15 bg-ink-900/40 p-3 hover:border-sakura-500/40 transition">
+                <ruby className="text-lg font-bold">{r.lemma}<rt>{r.reading}</rt></ruby>
+                <div className="mt-0.5 text-sm text-ink-400">{r.meaning}</div>
+                <div className="mt-1 flex gap-1">{r.kanjiParts.map((k) => <span key={k.char} className="text-[0.65rem] text-sakura-300">{k.char}</span>)}</div>
+              </Link>
+            ))}
+          </div>
         </section>
       )}
 

@@ -124,3 +124,24 @@ export async function byExam(req: Request, res: Response) {
   });
   res.json({ exam, count: rows.length, data: rows });
 }
+
+export async function related(req: Request, res: Response) {
+  const word = await prisma.word.findUnique({
+    where: { id: req.params.id },
+    include: { kanjiParts: { select: { char: true } } },
+  });
+  if (!word) return res.status(404).json({ error: "not found" });
+
+  const chars = word.kanjiParts.map((k) => k.char);
+  if (chars.length === 0) return res.json({ data: [] });
+
+  const rows = await prisma.word.findMany({
+    where: {
+      id: { not: word.id },
+      kanjiParts: { some: { char: { in: chars } } },
+    },
+    take: 10,
+    include: { kanjiParts: { orderBy: { position: "asc" } } },
+  });
+  res.json({ data: rows });
+}

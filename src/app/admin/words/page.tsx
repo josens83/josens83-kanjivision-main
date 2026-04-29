@@ -136,6 +136,7 @@ function WordsInner() {
               <th className="px-3 py-2 text-left">Type</th>
               <th className="px-3 py-2 text-left">Kanji</th>
               <th className="px-3 py-2 text-left">Created</th>
+              <th className="px-3 py-2 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -151,6 +152,25 @@ function WordsInner() {
                 </td>
                 <td className="px-3 py-2 text-xs text-ink-400">
                   {new Date(w.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-3 py-2">
+                  <div className="flex gap-2">
+                    <Link href={`/words/${w.id}`} className="text-xs text-sakura-300 hover:underline">View</Link>
+                    <button
+                      className="text-xs text-red-400 hover:underline"
+                      onClick={async () => {
+                        if (!confirm(`Delete "${w.lemma}"?`)) return;
+                        await fetch(`${API_URL}/api/admin/words/${w.id}`, {
+                          method: "DELETE",
+                          headers: { Authorization: `Bearer placeholder` },
+                        });
+                        setWords((prev) => prev.filter((x) => x.id !== w.id));
+                        setTotal((t) => t - 1);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
