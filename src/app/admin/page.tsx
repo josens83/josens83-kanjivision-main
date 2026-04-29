@@ -48,7 +48,7 @@ function AdminInner() {
   const [authed, setAuthed] = useState(false);
   const [keyInput, setKeyInput] = useState("");
 
-  const [tab, setTab] = useState<"content" | "packages">("content");
+  const [tab, setTab] = useState<"content" | "packages" | "subs">("content");
 
   const [stats, setStats] = useState<WordCount | null>(null);
   const [loading, setLoading] = useState(false);
@@ -63,6 +63,8 @@ function AdminInner() {
   const [pkgSaving, setPkgSaving] = useState<string | null>(null);
   const [quickMsg, setQuickMsg] = useState<string | null>(null);
   const [quickRunning, setQuickRunning] = useState(false);
+  const [subs, setSubs] = useState<Array<{ id: string; email: string; tier: string; subscriptionPlan: string | null; subscriptionStatus: string | null; subscriptionEnd: string | null; autoRenewal: boolean }>>([]);
+  const [subsLoading, setSubsLoading] = useState(false);
 
   useEffect(() => {
     if (key === ADMIN_KEY) setAuthed(true);
@@ -103,6 +105,16 @@ function AdminInner() {
     } catch { /* silent */ }
     setPkgSaving(null);
   }
+
+  useEffect(() => {
+    if (!authed || tab !== "subs") return;
+    setSubsLoading(true);
+    fetch(`${API_URL}/api/internal/subscribers?key=${ADMIN_KEY}`)
+      .then((r) => r.json())
+      .then((d) => setSubs(d.subscribers ?? []))
+      .catch(() => setSubs([]))
+      .finally(() => setSubsLoading(false));
+  }, [authed, tab]);
 
   async function runQuickAction(label: string, url: string) {
     setQuickRunning(true);
@@ -189,6 +201,12 @@ function AdminInner() {
             className={`rounded-md px-4 py-1.5 text-xs font-semibold transition ${tab === "packages" ? "bg-sakura-500 text-white" : "text-ink-400 hover:text-ink-200"}`}
           >
             Packages
+          </button>
+          <button
+            onClick={() => setTab("subs")}
+            className={`rounded-md px-4 py-1.5 text-xs font-semibold transition ${tab === "subs" ? "bg-sakura-500 text-white" : "text-ink-400 hover:text-ink-200"}`}
+          >
+            Subscribers
           </button>
         </div>
       </header>
@@ -413,6 +431,58 @@ function AdminInner() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {tab === "subs" && (
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold">Subscribers</h2>
+            <span className="text-xs text-ink-400">{subs.length} users</span>
+          </div>
+          {subsLoading ? (
+            <div className="text-center text-ink-400 py-8">Loading...</div>
+          ) : subs.length === 0 ? (
+            <div className="text-center text-ink-400 py-8">No subscribers found.</div>
+          ) : (
+            <div className="overflow-x-auto rounded-2xl border border-ink-400/20">
+              <table className="w-full text-sm">
+                <thead className="bg-ink-800/80 text-xs uppercase text-ink-400">
+                  <tr>
+                    <th className="px-3 py-2 text-left">Email</th>
+                    <th className="px-3 py-2 text-left">Tier</th>
+                    <th className="px-3 py-2 text-left">Plan</th>
+                    <th className="px-3 py-2 text-left">Status</th>
+                    <th className="px-3 py-2 text-left">Ends</th>
+                    <th className="px-3 py-2 text-left">Renewal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {subs.map((s) => {
+                    const endsAt = s.subscriptionEnd ? new Date(s.subscriptionEnd) : null;
+                    const expiringSoon = endsAt && (endsAt.getTime() - Date.now()) < 7 * 86400000;
+                    return (
+                      <tr key={s.id} className={`border-t border-ink-400/10 ${expiringSoon ? "bg-amber-500/5" : ""}`}>
+                        <td className="px-3 py-2 text-xs">{s.email}</td>
+                        <td className="px-3 py-2 font-bold text-sakura-300">{s.tier}</td>
+                        <td className="px-3 py-2">{s.subscriptionPlan ?? "—"}</td>
+                        <td className="px-3 py-2">
+                          <span className={`chip text-[0.6rem] ${s.subscriptionStatus === "ACTIVE" ? "text-emerald-300" : s.subscriptionStatus === "CANCELLED" ? "text-orange-300" : "text-ink-400"}`}>
+                            {s.subscriptionStatus ?? "—"}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-xs text-ink-400">
+                          {endsAt ? endsAt.toLocaleDateString() : "—"}
+                          {expiringSoon && <span className="ml-1 text-amber-400">!</span>}
+                        </td>
+                        <td className="px-3 py-2 text-xs">{s.autoRenewal ? "On" : "Off"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </section>

@@ -130,6 +130,37 @@ export default function StatisticsPage() {
           })}
         </div>
       </section>
+
+      {/* Study milestones */}
+      <section className="card">
+        <h2 className="font-bold">Milestones</h2>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {[
+            { label: "First word", target: 1, icon: "1" },
+            { label: "50 words", target: 50, icon: "50" },
+            { label: "100 words", target: 100, icon: "100" },
+            { label: "500 words", target: 500, icon: "500" },
+            { label: "1,000 words", target: 1000, icon: "1K" },
+            { label: "7-day streak", target: 7, icon: "7d", isStreak: true },
+            { label: "30-day streak", target: 30, icon: "30d", isStreak: true },
+            { label: "100-day streak", target: 100, icon: "100d", isStreak: true },
+          ].map((m) => {
+            const val = m.isStreak ? (stats?.longestStreakDays ?? 0) : (stats?.total ?? 0);
+            const done = val >= m.target;
+            return (
+              <div key={m.label} className={`flex items-center gap-3 rounded-lg border p-3 ${done ? "border-emerald-500/30 bg-emerald-500/5" : "border-ink-400/15"}`}>
+                <span className={`grid h-10 w-10 place-items-center rounded-lg text-xs font-black ${done ? "bg-emerald-500/20 text-emerald-300" : "bg-ink-800 text-ink-400"}`}>
+                  {m.icon}
+                </span>
+                <div>
+                  <div className={`text-sm font-semibold ${done ? "text-emerald-300" : ""}`}>{m.label}</div>
+                  <div className="text-[0.6rem] text-ink-400">{done ? "Achieved!" : `${val}/${m.target}`}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }

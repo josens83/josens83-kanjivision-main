@@ -8,6 +8,7 @@ import {
 } from "../controllers/internal.controller";
 import { listAllPackages, updatePackage } from "../controllers/package.controller";
 import { requireInternalKey } from "../middleware/internal.middleware";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
 router.use(requireInternalKey);
@@ -24,5 +25,15 @@ router.get("/generate-images", generateImagesGet);
 // Admin package management
 router.get("/packages", listAllPackages);
 router.patch("/packages/:id", updatePackage);
+
+// Admin subscribers list
+router.get("/subscribers", async (_req, res) => {
+  const subscribers = await prisma.user.findMany({
+    where: { tier: { not: "FREE" } },
+    select: { id: true, email: true, tier: true, subscriptionPlan: true, subscriptionStatus: true, subscriptionEnd: true, autoRenewal: true },
+    orderBy: { subscriptionEnd: "asc" },
+  });
+  res.json({ subscribers });
+});
 
 export default router;
