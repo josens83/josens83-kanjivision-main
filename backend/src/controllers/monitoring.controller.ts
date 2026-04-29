@@ -16,6 +16,21 @@ export async function health(_req: Request, res: Response) {
   });
 }
 
+export async function dbStats(_req: Request, res: Response) {
+  const [users, words, packages, activePurchases, expiredPurchases, subscriptions, wordMappings] = await Promise.all([
+    prisma.user.count(),
+    prisma.word.count(),
+    prisma.productPackage.count(),
+    prisma.userPurchase.count({ where: { status: "ACTIVE" } }),
+    prisma.userPurchase.count({ where: { status: { not: "ACTIVE" } } }),
+    prisma.user.count({ where: { subscriptionStatus: "ACTIVE" } }),
+    prisma.productPackageWord.count(),
+  ]);
+  const byTier = await prisma.user.groupBy({ by: ["tier"], _count: { _all: true } });
+  const byExam = await prisma.word.groupBy({ by: ["examCategory"], _count: { _all: true } });
+  res.json({ users, words, packages, activePurchases, expiredPurchases, subscriptions, wordMappings, byTier, byExam });
+}
+
 export async function cacheStats(_req: Request, res: Response) {
   res.json({ message: "cache stats", keys: 0 });
 }
