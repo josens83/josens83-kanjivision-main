@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
-import { sendPurchaseReceipt, sendSubscriptionWelcome } from "../services/email.service";
+import { sendPurchaseReceipt, sendSubscriptionWelcome, sendPaymentFailedEmail } from "../services/email.service";
 
 const PRICE_MAP: Record<string, string | undefined> = {
   basic_monthly: process.env.PADDLE_PRICE_ID_BASIC_MONTHLY,
@@ -163,6 +163,31 @@ export async function webhook(req: Request, res: Response) {
         where: { id: userId },
         data: { subscriptionStatus: "PAST_DUE" },
       });
+      const pastDueUser = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, displayName: true } });
+      if (pastDueUser) sendPaymentFailedEmail(pastDueUser.email, pastDueUser.displayName).catch(() => {});
+      break;
+    }
+    case "adjustment.updated": {
+      if (data.status === "approved") {
+        if (data.custom_data?.type === "package" && data.custom_data?.slug) {
+          await prisma.userPurchase.updateMany({
+            where: { userId, package: { slug: data.custom_data.slug }, status: "ACTIVE" },
+            data: { status: "REFUNDED", expiresAt: new Date() },
+          });
+          logger.info({ userId, slug: data.custom_data.slug }, "package refunded");
+        } else {
+          await prisma.user.update({
+            where: { id: userId },
+            data: { subscriptionStatus: "CANCELLED", tier: "FREE" },
+          });
+          logger.info({ userId }, "subscription refunded → FREE");
+        }
+      }
+      break;
+    }
+    case "transaction.payment_failed": {
+      const failedUser = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, displayName: true } });
+      if (failedUser) sendPaymentFailedEmail(failedUser.email, failedUser.displayName).catch(() => {});
       break;
     }
   }

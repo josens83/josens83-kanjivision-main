@@ -78,3 +78,24 @@ export async function sendSubscriptionWelcome(
     <p style="color:#888;font-size:12px">KanjiVision AI</p>
   `);
 }
+
+export async function sendPaymentFailedEmail(to: string, name: string | null) {
+  await send(to, "Payment failed — KanjiVision AI", `
+    <h2>${name ?? "Hello"}, your payment could not be processed.</h2>
+    <p>Please update your payment method to continue using your subscription.</p>
+    <p><a href="https://kanjivision.app/settings">Update payment →</a></p>
+    <p style="color:#888;font-size:12px">If this was resolved, you can ignore this email.</p>
+  `);
+}
+
+export async function sendExpiryNotification(
+  to: string, name: string | null, packageName: string, daysLeft: number, slug: string
+) {
+  await send(to, `Your ${packageName} pack expires in ${daysLeft} days`, `
+    <h2>${name ?? "Hello"}, your pack is expiring soon!</h2>
+    <p>Your <b>${packageName}</b> access expires in <b>${daysLeft} days</b>.</p>
+    <p>Renew now to keep your progress and continue learning.</p>
+    <p><a href="https://kanjivision.app/packages/${slug}">Renew pack →</a></p>
+    <p style="color:#888;font-size:12px">KanjiVision AI · Part of the Vision Platform</p>
+  `);
+}

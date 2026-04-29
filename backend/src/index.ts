@@ -24,6 +24,7 @@ import { errorHandler, notFound } from "./middleware/error.middleware";
 import { rateLimiter } from "./middleware/rateLimiter.middleware";
 import { logger } from "./lib/logger";
 import { prisma, disconnectPrisma } from "./lib/prisma";
+import { checkExpiringPurchases } from "./cron/expiry-notification";
 
 process.stdout.write("[boot] middleware + logger + prisma module loaded\n");
 
@@ -137,6 +138,16 @@ const server = app.listen(PORT, "0.0.0.0", () => {
   initDatabase().catch((err) => {
     logger.error({ err }, "initDatabase crashed");
   });
+
+  // Daily expiry check — runs every 24h
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  setInterval(() => {
+    checkExpiringPurchases().catch((err) => logger.error({ err }, "expiry cron failed"));
+  }, DAY_MS);
+  // Run once 30s after boot
+  setTimeout(() => {
+    checkExpiringPurchases().catch((err) => logger.error({ err }, "expiry cron initial run failed"));
+  }, 30_000);
 });
 
 // --- Graceful shutdown ---

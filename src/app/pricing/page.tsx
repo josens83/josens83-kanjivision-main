@@ -65,6 +65,8 @@ export default function PricingPage() {
     });
   }, []);
 
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
   async function handleSubscribe(plan: string) {
     if (!user) {
       router.push(`/signup?next=/pricing`);
@@ -72,6 +74,7 @@ export default function PricingPage() {
     }
     if (plan === "free") return;
 
+    setCheckoutError(null);
     setLoading(plan);
     const res = await apiPost<{ transactionId: string }>("/api/paddle/create-checkout", {
       plan,
@@ -80,7 +83,9 @@ export default function PricingPage() {
     setLoading(null);
 
     if (!res.ok || !res.data?.transactionId) {
-      alert(res.error ?? "Could not create checkout. Paddle may not be configured yet.");
+      setCheckoutError(res.error === "Paddle not configured"
+        ? "Subscriptions launching soon! Check back shortly."
+        : (res.error ?? "Could not create checkout. Please try again."));
       return;
     }
 
@@ -88,10 +93,11 @@ export default function PricingPage() {
     if (Paddle?.Checkout) {
       Paddle.Checkout.open({
         transactionId: res.data.transactionId,
+        customData: { service: "kv", plan, billingCycle: yearly ? "yearly" : "monthly", userId: user.id },
         successCallback: () => router.push("/dashboard?subscribed=true"),
       });
     } else {
-      alert("Paddle.js not loaded. Please refresh and try again.");
+      setCheckoutError("Payment system loading. Please refresh and try again.");
     }
   }
 
@@ -167,6 +173,12 @@ export default function PricingPage() {
           </div>
         ))}
       </section>
+
+      {checkoutError && (
+        <div className="mx-auto max-w-md rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-center text-sm text-amber-200">
+          {checkoutError}
+        </div>
+      )}
 
       {packs.length > 0 && (
         <section>
