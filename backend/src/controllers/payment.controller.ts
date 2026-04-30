@@ -4,6 +4,7 @@ import { PaymentProcessor } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { logger } from "../lib/logger";
+import { generateReceiptHTML } from "../services/receipt.service";
 
 const checkoutSchema = z.object({
   planId: z.string(),
@@ -82,4 +83,30 @@ async function recordPayment(p: {
       rawEvent: p.raw as object,
     },
   });
+}
+
+export async function downloadReceipt(req: AuthenticatedRequest, res: Response) {
+  const { purchaseId } = req.params;
+  const purchase = await prisma.userPurchase.findFirst({
+    where: { id: purchaseId, userId: req.userId! },
+    include: {
+      user: { select: { email: true, displayName: true } },
+      package: { select: { name: true, nameEn: true } },
+    },
+  });
+  if (!purchase) return res.status(404).json({ error: "purchase not found" });
+
+  const html = generateReceiptHTML({
+    userName: purchase.user.displayName,
+    userEmail: purchase.user.email,
+    packageName: purchase.package.nameEn ?? purchase.package.name,
+    amount: purchase.amount,
+    transactionId: purchase.id,
+    purchaseDate: purchase.createdAt,
+    expiresAt: purchase.expiresAt,
+  });
+
+  res.setHeader("Content-Type", "text/html");
+  res.setHeader("Content-Disposition", `inline; filename="receipt-${purchase.id}.html"`);
+  res.send(html);
 }

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { apiGet, apiPost } from "@/lib/api";
+import { apiGet, apiPost, API_URL } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
 
 interface SubInfo { tier: string; subscriptionPlan: string | null; subscriptionStatus: string | null; subscriptionEnd: string | null; autoRenewal: boolean }
@@ -80,11 +80,19 @@ export default function MySubscriptionPage() {
                     {new Date(p.createdAt).toLocaleDateString()} &middot; Expires {new Date(p.expiresAt).toLocaleDateString()}
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end gap-1">
                   <div className="text-sm font-bold">${(p.amount / 100).toFixed(2)}</div>
                   <span className={`text-[0.6rem] ${p.status === "ACTIVE" ? "text-emerald-300" : p.status === "REFUNDED" ? "text-red-300" : "text-ink-400"}`}>
                     {p.status}
                   </span>
+                  <a
+                    href={`${API_URL}/api/payments/receipt/${p.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[0.6rem] text-sakura-300 hover:underline"
+                  >
+                    Receipt
+                  </a>
                 </div>
               </div>
             ))}
