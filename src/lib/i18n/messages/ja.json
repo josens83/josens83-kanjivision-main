@@ -1,0 +1,92 @@
+{
+  "common": {
+    "signIn": "ログイン",
+    "signUp": "アカウント作成",
+    "signOut": "ログアウト",
+    "loading": "読み込み中...",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "back": "戻る",
+    "next": "次へ",
+    "search": "検索",
+    "all": "すべて",
+    "free": "無料",
+    "basic": "ベーシック",
+    "premium": "プレミアム"
+  },
+  "nav": {
+    "learn": "学習",
+    "quiz": "クイズ",
+    "bookmarks": "ブックマーク",
+    "dashboard": "ダッシュボード",
+    "pricing": "料金プラン"
+  },
+  "pricing": {
+    "title": "シンプルなプラン、正直な価格",
+    "subtitle": "N5を無料で始めましょう。N4 → N1の準備ができたらアップグレード。",
+    "monthly": "月額",
+    "yearly": "年額",
+    "subscribe": "登録する",
+    "currentPlan": "現在のプラン",
+    "popular": "人気",
+    "standalonePacks": "個別パックを購入",
+    "standaloneDesc": "一回限りの購入。サブスクリプション不要。",
+    "browseAll": "すべてのパックを見る",
+    "bundles": "Vision Platform バンドル",
+    "bundlesDesc": "VocaVision（英語）やHangeulVision（韓国語）と組み合わせると割引。",
+    "footer": "Paddleを通じて決済処理。いつでもキャンセル可能。初回サブスクリプション7日間返金。"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "welcome": "おかえりなさい",
+    "streak": "連続学習",
+    "studied": "学習済み",
+    "dueNow": "復習予定",
+    "mastered": "マスター",
+    "dailyGoal": "日課",
+    "goalReached": "目標達成！",
+    "moreToGo": "あと{count}枚",
+    "continueLearning": "学習を続ける",
+    "recommended": "おすすめ単語",
+    "dueForReview": "復習待ち",
+    "similarKanji": "同じ漢字を使う単語",
+    "installApp": "アプリとしてインストール",
+    "installDesc": "このサイトはPWAです。iOS：共有 → ホーム画面に追加。Android：メニュー → アプリをインストール。"
+  },
+  "learn": {
+    "title": "学習",
+    "selectLevel": "学習するJLPTレベルを選択してください。",
+    "startSession": "セッション開始",
+    "sessionComplete": "セッション完了！",
+    "wordsReviewed": "復習した単語",
+    "accuracy": "正答率"
+  },
+  "notifications": {
+    "title": "通知",
+    "markAllRead": "すべて既読にする",
+    "empty": "通知はまだありません。",
+    "unread": "未読{count}件"
+  },
+  "my": {
+    "title": "マイサブスクリプション",
+    "currentPlan": "現在のプラン",
+    "nextBilling": "次の請求日",
+    "autoRenewal": "自動更新",
+    "upgradePlan": "プランをアップグレード",
+    "cancelSub": "サブスクリプションをキャンセル",
+    "cancelConfirm": "サブスクリプションをキャンセルしますか？現在の請求期間の終了まで利用できます。",
+    "billingHistory": "お支払い履歴",
+    "noPurchases": "購入履歴はまだありません。",
+    "levelPacks": "レベルパック",
+    "levelPacksDesc": "購入した一回限りのレベルパック。"
+  },
+  "errors": {
+    "notFound": "ページが見つかりません",
+    "notFoundDesc": "お探しのページは存在しないか、移動されました。",
+    "serverError": "エラーが発生しました",
+    "tryAgain": "もう一度試す",
+    "goHome": "ホームへ"
+  }
+}

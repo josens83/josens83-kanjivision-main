@@ -1,0 +1,92 @@
+{
+  "common": {
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "signOut": "Sign out",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "all": "All",
+    "free": "Free",
+    "basic": "Basic",
+    "premium": "Premium"
+  },
+  "nav": {
+    "learn": "Learn",
+    "quiz": "Quiz",
+    "bookmarks": "Bookmarks",
+    "dashboard": "Dashboard",
+    "pricing": "Pricing"
+  },
+  "pricing": {
+    "title": "Simple plans, honest pricing",
+    "subtitle": "Start free with N5. Upgrade when you're ready for N4 → N1.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "subscribe": "Subscribe",
+    "currentPlan": "Current plan",
+    "popular": "Popular",
+    "standalonePacks": "Or buy individual packs",
+    "standaloneDesc": "One-time purchase. No subscription required.",
+    "browseAll": "Browse all packs",
+    "bundles": "Vision Platform bundles",
+    "bundlesDesc": "Combine with VocaVision (English) or HangeulVision (Korean) for a discount.",
+    "footer": "Subscriptions processed through Paddle. Cancel anytime. 7-day refund on first subscription."
+  },
+  "dashboard": {
+    "title": "Your dashboard",
+    "welcome": "おかえりなさい",
+    "streak": "Streak",
+    "studied": "Studied",
+    "dueNow": "Due now",
+    "mastered": "Mastered",
+    "dailyGoal": "Daily goal",
+    "goalReached": "Goal reached!",
+    "moreToGo": "{count} more to go",
+    "continueLearning": "Continue learning",
+    "recommended": "Recommended for you",
+    "dueForReview": "Due for review",
+    "similarKanji": "Words with similar kanji",
+    "installApp": "Install as an app",
+    "installDesc": "This site is a PWA. On iOS: Share → Add to Home Screen. On Android Chrome: menu → Install app."
+  },
+  "learn": {
+    "title": "Learn",
+    "selectLevel": "Select a JLPT level to start studying.",
+    "startSession": "Start session",
+    "sessionComplete": "Session complete!",
+    "wordsReviewed": "Words reviewed",
+    "accuracy": "Accuracy"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet.",
+    "unread": "{count} unread"
+  },
+  "my": {
+    "title": "My Subscription",
+    "currentPlan": "Current plan",
+    "nextBilling": "Next billing",
+    "autoRenewal": "Auto-renewal",
+    "upgradePlan": "Upgrade plan",
+    "cancelSub": "Cancel subscription",
+    "cancelConfirm": "Cancel your subscription? You'll keep access until the current billing period ends.",
+    "billingHistory": "Billing history",
+    "noPurchases": "No purchases yet.",
+    "levelPacks": "Level Packs",
+    "levelPacksDesc": "One-time level packs you've purchased."
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "notFoundDesc": "The page you're looking for doesn't exist or has been moved.",
+    "serverError": "Something went wrong",
+    "tryAgain": "Try again",
+    "goHome": "Go home"
+  }
+}

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useAppStore } from "@/lib/store";
 import { apiGet } from "@/lib/api";
+import { getLocale, setLocale, LOCALES, LOCALE_LABELS, type Locale } from "@/lib/i18n";
 
 const LINKS = [
   { href: "/learn", label: "Learn" },
@@ -31,7 +32,12 @@ export function NavBar() {
   const signOut = useAppStore((s) => s.signOut);
   const [menuOpen, setMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [locale, setLocaleState] = useState<Locale>("en");
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setLocaleState(getLocale());
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -83,6 +89,19 @@ export function NavBar() {
           ))}
         </ul>
         <div className="flex items-center gap-2">
+          <select
+            value={locale}
+            onChange={(e) => {
+              const l = e.target.value as Locale;
+              setLocaleState(l);
+              setLocale(l);
+              window.location.reload();
+            }}
+            className="rounded-md border border-ink-400/20 bg-ink-800 px-1.5 py-1 text-[0.65rem] text-ink-300 outline-none"
+            aria-label="Language"
+          >
+            {LOCALES.map((l) => <option key={l} value={l}>{LOCALE_LABELS[l]}</option>)}
+          </select>
           {user && (
             <Link href="/notifications" className="relative rounded-full p-1.5 text-ink-300 transition hover:bg-ink-800 hover:text-white">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
