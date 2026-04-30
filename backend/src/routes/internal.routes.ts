@@ -7,6 +7,7 @@ import {
   generateImagesGet,
 } from "../controllers/internal.controller";
 import { listAllPackages, updatePackage } from "../controllers/package.controller";
+import { dashboard as analyticsDashboard } from "../controllers/analytics.controller";
 import { requireInternalKey } from "../middleware/internal.middleware";
 import { prisma } from "../lib/prisma";
 
@@ -50,6 +51,9 @@ router.post("/broadcast", async (req, res) => {
   }
   res.json({ ok: true, created, total: users.length });
 });
+
+// Analytics dashboard
+router.get("/analytics", analyticsDashboard);
 
 // Content gaps (levels below target)
 router.get("/content-gaps", async (_req, res) => {

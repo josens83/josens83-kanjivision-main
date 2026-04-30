@@ -333,6 +333,9 @@ function AdminInner() {
                 onClick={() => runQuickAction("Generate 5 N4 images", `/api/internal/generate-images?key=${ADMIN_KEY}&exam=JLPT_N4&count=5`)}>
                 N4 +5 images
               </button>
+              <Link href={`/admin/analytics?key=${ADMIN_KEY}`} className="btn-ghost !text-xs !py-1.5">
+                Analytics &rarr;
+              </Link>
               <Link href={`/admin/monitoring?key=${ADMIN_KEY}`} className="btn-ghost !text-xs !py-1.5">
                 System Monitor &rarr;
               </Link>
